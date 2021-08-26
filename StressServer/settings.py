@@ -28,6 +28,7 @@ ALLOWED_HOSTS = [
     'localhost',
     '127.0.0.1',
     '165.246.42.172',
+    'stress.sytes.net'
 ]
 
 # Application definition
@@ -119,7 +120,7 @@ USE_I18N = True
 
 USE_L10N = True
 
-USE_TZ = True
+USE_TZ = False
 
 TIME_ZONE = 'Asia/Seoul'
 

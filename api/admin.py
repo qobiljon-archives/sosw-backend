@@ -2,6 +2,7 @@ from api.models import Participant
 from api.models import AccelerometerData
 from api.models import InterbeatIntervalData
 from api.models import LightIntensityData
+from api.models import EMAData
 from django.contrib import admin
 
 
@@ -23,3 +24,8 @@ class LightIntensityDataAdmin(admin.ModelAdmin):
 @admin.register(AccelerometerData)
 class AccelerometerDataAdmin(admin.ModelAdmin):
     list_display = ['participant', 'timestamp', 'x', 'y', 'z']
+
+
+@admin.register(EMAData)
+class EMADataAdmin(admin.ModelAdmin):
+    list_display = ['participant', 'timestamp', 'response']

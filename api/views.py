@@ -1,16 +1,14 @@
-import datetime
-
-import pytz
 from django.utils import timezone
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
 from api.models import InterbeatIntervalData
 from api.models import LightIntensityData
 from api.models import AccelerometerData
+from api.models import EMAData
 from django.http import JsonResponse
-from django.shortcuts import render
 from api.models import Participant
 from api import models
+import json
 import re
 
 
@@ -24,7 +22,8 @@ def handle_register_api(request):
 @csrf_exempt
 @require_http_methods(['POST', 'GET'])
 def handle_login_api(request):
-    user_id = int(request.POST['userId'])
+    params = request.POST if 'userId' in request.POST else json.loads(request.body.decode())
+    user_id = int(params['userId'])
     if Participant.objects.filter(id=user_id).exists():
         return JsonResponse(data={'success': True, 'userId': user_id})
     else:
@@ -70,5 +69,22 @@ def handle_submit_data_api(request):
                 except ValueError:
                     pass
         return JsonResponse(data={'success': True, 'fileNames': files})
+    else:
+        return JsonResponse(data={'success': False})
+
+
+@csrf_exempt
+@require_http_methods(['POST', 'GET'])
+def handle_submit_ema_api(request):
+    params = request.POST if 'userId' in request.POST else json.loads(request.body.decode())
+    user_id = int(params['userId'])
+    if Participant.objects.filter(id=user_id).exists():
+        participant = Participant.objects.get(id=user_id)
+        EMAData.objects.create(
+            participant=participant,
+            timestamp=timezone.now(),
+            response=params['response']
+        )
+        return JsonResponse(data={'success': True})
     else:
         return JsonResponse(data={'success': False})

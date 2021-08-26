@@ -33,3 +33,10 @@ class AccelerometerData(models.Model):
     y = models.FloatField()
     z = models.FloatField()
     indexes = [models.Index(fields=['user', 'timestamp'])]
+
+
+class EMAData(models.Model):
+    participant = models.ForeignKey(to='Participant', null=True, on_delete=models.SET_NULL)
+    timestamp = models.DateTimeField()
+    response = models.CharField(max_length=2048)
+    indexes = [models.Index(fields=['user', 'timestamp'])]
