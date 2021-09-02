@@ -8,8 +8,12 @@ from api.models import EMAData
 from django.http import JsonResponse
 from api.models import Participant
 from api import models
+import firebase_admin
+from firebase_admin import messaging
 import json
 import re
+
+firebase_app = None
 
 
 @csrf_exempt
@@ -26,6 +30,53 @@ def handle_login_api(request):
     user_id = int(params['userId'])
     if Participant.objects.filter(id=user_id).exists():
         return JsonResponse(data={'success': True, 'userId': user_id})
+    else:
+        return JsonResponse(data={'success': False})
+
+
+@csrf_exempt
+@require_http_methods(['POST', 'GET'])
+def handle_set_fcm_token_api(request):
+    params = request.POST if 'userId' in request.POST else json.loads(request.body.decode())
+    user_id = int(params['userId'])
+    if Participant.objects.filter(id=user_id).exists():
+        p = Participant.objects.get(id=user_id)
+        p.fcm_token = params['fcmToken']
+        p.save()
+        return JsonResponse(data={'success': True, 'fcmToken': p.fcm_token})
+    else:
+        return JsonResponse(data={'success': False})
+
+
+@csrf_exempt
+@require_http_methods(['POST', 'GET'])
+def handle_send_ema_notification_api(request):
+    params = request.POST if 'userId' in request.POST else json.loads(request.body.decode())
+    user_id = int(params['userId'])
+    if Participant.objects.filter(id=user_id).exists():
+        p = Participant.objects.get(id=user_id)
+        if p.fcm_token:
+            global firebase_app
+            if not firebase_app:
+                firebase_app = firebase_admin.initialize_app(firebase_admin.credentials.Certificate('stressEmaApp.json'))
+            messaging.send(message=messaging.Message(
+                notification=messaging.Notification(
+                    title="EMA time!",
+                    body=f'Please fill an EMA about your feelings and activity ☺'
+                ),
+                android=messaging.AndroidConfig(
+                    priority='high',
+                    notification=messaging.AndroidNotification(
+                        title="EMA time!",
+                        body=f'Please fill an EMA about your feelings and activity ☺',
+                        channel_id='stressemaapp'
+                    )
+                ),
+                token=p.fcm_token
+            ), app=firebase_app)
+            return JsonResponse(data={'success': True, 'fcm_token': p.fcm_token})
+        else:
+            return JsonResponse(data={'success': False})
     else:
         return JsonResponse(data={'success': False})
 

@@ -9,6 +9,7 @@ ACC_ID = 3
 class Participant(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=256, null=True, default=None)
+    fcm_token = models.CharField(max_length=512, null=True, default=None)
     smartwatch_serial_number = models.CharField(max_length=256, null=True, default=None)
 
 

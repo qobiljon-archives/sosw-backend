@@ -7,8 +7,8 @@ from django.contrib import admin
 
 
 @admin.register(Participant)
-class UserAdmin(admin.ModelAdmin):
-    list_display = ['id', 'name', 'smartwatch_serial_number']
+class ParticipantAdmin(admin.ModelAdmin):
+    list_display = ['id', 'name', 'fcm_token', 'smartwatch_serial_number']
 
 
 @admin.register(InterbeatIntervalData)

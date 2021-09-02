@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+{% block content %}
+    {% load static %}
+    <table>
+        <tr>
+            <th class="id_column">id</th>
+            <th class="name_column">Name</th>
+            <th class="actions_column">Actions</th>
+        </tr>
+        {% for participant in participants %}
+            <tr>
+                <td class="id_column">{{ participant.id }}</td>
+                <td class="name_column">{% if participant.name %}{{ participant.name }}{% else %}N/A{% endif %}</td>
+                <td class="actions_column">
+                    {% if participant.fcm_token %}
+                        <a title="Send EMA" onclick="sendEmaRequest({{ participant.id }});">
+                            <img class="action_button_green" src="{% static 'send.png' %}" alt="send">
+                        </a>
+                    {% else %}N/A{% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+
+    <style>
+        table {
+            color: #333;
+            width: 100%;
+            border-collapse: collapse;
+            border-spacing: 0;
+            table-layout: fixed;
+        }
+
+        th {
+            background: #4285F4; /* #F1F1F1; /* Darken header a bit */
+            color: white;
+            font-weight: bold;
+            padding: 10px 0;
+            font-size: large;
+        }
+
+        td {
+            background: white;
+            text-align: center;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        /* Cells in even rows (2,4,6...) are one color */
+        tr:nth-child(even) td {
+            background: white;
+        }
+
+        /* Cells in odd rows (1,3,5...) are another (excludes header cells)  */
+        tr:nth-child(odd) td {
+            background: #DFDFDF;
+        }
+
+        tr:not(:first-child):hover td {
+            background: #666;
+            color: white;
+        }
+
+        .id_column {
+            width: 30%;
+        }
+
+        .name_column {
+            width: 40%;
+        }
+
+        .actions_column {
+            width: 30%
+        }
+
+        td, th {
+            border: 1px solid transparent; /* No more visible border */
+            height: 30px;
+        {#transition: all 0.3s; /* Simple transition for hover effect */#}
+        }
+
+        img.action_button_green {
+            background: #2ecc71;
+            vertical-align: middle;
+            padding: 3px;
+            margin: 2px 0;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: larger;
+            cursor: pointer;
+        {#transition: all 0.3s;#}
+        }
+
+        img.action_button_red {
+            background: orangered;
+            vertical-align: middle;
+            padding: 3px;
+            margin: 2px 0;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: larger;
+            cursor: pointer;
+        {#transition: all 0.3s;#}
+        }
+
+        img.action_button_green:hover, img.action_button_red:hover {
+            background: #4285F4;
+            color: black;
+        }
+    </style>
+
+    <script>
+        function sendEmaRequest(userId) {
+            $.post('{% url 'send_ema_notification_api' %}', {userId: userId}, function (res) {
+                if (res.success)
+                    alert(`EMA sent to user ${userId} !`);
+                else
+                    alert(`Failed to send EMA ${userId} !`);
+            });
+        }
+    </script>
+{% endblock %}
