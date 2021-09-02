@@ -1,7 +1,7 @@
 from django.utils import timezone
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
-from api.models import InterbeatIntervalData
+from api.models import InterbeatIntervalData, SensingDataCount
 from api.models import LightIntensityData
 from api.models import AccelerometerData
 from api.models import EMAData
@@ -20,6 +20,7 @@ firebase_app = None
 @require_http_methods(['POST', 'GET'])
 def handle_register_api(request):
     new_participant = Participant.objects.create()
+    SensingDataCount.objects.create(participant=new_participant)
     return JsonResponse(data={'userId': new_participant.id})
 
 
@@ -88,6 +89,7 @@ def handle_submit_data_api(request):
     user_id = int(request.POST['userId'])
     if Participant.objects.filter(id=user_id).exists():
         participant = Participant.objects.get(id=user_id)
+        increment = 0
         for file in files:
             for line in request.POST[file].split('\n'):
                 cells = line[:-1].split(',')
@@ -101,6 +103,7 @@ def handle_submit_data_api(request):
                             timestamp=timestamp,
                             interbeat_interval=interbeat_interval
                         )
+                        increment += 1
                     if data_source == models.PPG_ID:
                         light_intensity = float(cells[2])
                         LightIntensityData.objects.create(
@@ -108,6 +111,7 @@ def handle_submit_data_api(request):
                             timestamp=timestamp,
                             light_intensity=light_intensity
                         )
+                        increment += 1
                     if data_source == models.ACC_ID:
                         x, y, z = [float(x) for x in cells[2:]]
                         AccelerometerData.objects.create(
@@ -117,8 +121,12 @@ def handle_submit_data_api(request):
                             y=y,
                             z=z
                         )
+                        increment += 1
                 except ValueError:
                     pass
+        stats = SensingDataCount.objects.get(participant=participant)
+        stats.count += increment
+        stats.save()
         return JsonResponse(data={'success': True, 'fileNames': files})
     else:
         return JsonResponse(data={'success': False})

@@ -5,7 +5,6 @@ PPG_ID = 2
 ACC_ID = 3
 
 
-# Create your models here.
 class Participant(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=256, null=True, default=None)
@@ -41,3 +40,8 @@ class EMAData(models.Model):
     timestamp = models.DateTimeField()
     response = models.CharField(max_length=2048)
     indexes = [models.Index(fields=['user', 'timestamp'])]
+
+
+class SensingDataCount(models.Model):
+    participant = models.OneToOneField(to='Participant', on_delete=models.CASCADE)
+    count = models.IntegerField(default=0)

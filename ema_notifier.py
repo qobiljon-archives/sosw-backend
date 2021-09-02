@@ -54,10 +54,6 @@ if __name__ == '__main__':
     if not firebase_app:
         firebase_app = firebase_admin.initialize_app(firebase_admin.credentials.Certificate('stressEmaApp.json'))
 
-    now = datetime.now()
-    then = now.replace(second=0, microsecond=0) + timedelta(minutes=1)
-    threading.Timer((then - now).total_seconds(), send_ema_notification, args=(Participant.objects.get(id=10).fcm_token,)).start()
-
     day = datetime.now().day
     threads = set()
     while True:
