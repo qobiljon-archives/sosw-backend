@@ -1,7 +1,8 @@
 {% extends 'base.html' %}
 {% block content %}
     {% load static %}
-    <a class="button" href="{% static 'procedure.png' %}">Lab stress experiment procedure</a>
+    <a class="button" href="{% static 'procedure.png' %}">Stress experiment procedure</a>
+    <a class="button" onclick="randomOrder();">PPG accuracy random order</a>
     <a class="button" onclick="copyTime();">Copy current time</a>
     <input type="text" value="" id="timeInput" hidden>
 
@@ -184,6 +185,33 @@
             let dt = new Date();
             copyTextToClipboard(dt.getTime().toString())
             alert(`Copied ${dt.toTimeString()}`);
+        }
+
+        function shuffle(array) {
+            let currentIndex = array.length, randomIndex;
+
+            // While there remain elements to shuffle...
+            while (currentIndex !== 0) {
+
+                // Pick a remaining element...
+                randomIndex = Math.floor(Math.random() * currentIndex);
+                currentIndex--;
+
+                // And swap it with the current element.
+                [array[currentIndex], array[randomIndex]] = [
+                    array[randomIndex], array[currentIndex]];
+            }
+
+            return array;
+        }
+
+        function randomOrder() {
+            let arr = ['static, tight', 'walking, tight', 'running, tight', 'static, medium', 'walking, medium', 'running, medium', 'static, loose', 'walking, loose', 'running, loose'];
+            arr = shuffle(arr);
+            let str = "";
+            for (let i = 0; i < arr.length; i++)
+                str += `\n${i}. ${arr[i]}`;
+            alert(str);
         }
     </script>
 {% endblock %}
