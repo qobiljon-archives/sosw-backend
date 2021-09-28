@@ -1,6 +1,10 @@
 {% extends 'base.html' %}
 {% block content %}
     {% load static %}
+    <a class="button" href="{% static 'procedure.png' %}">Lab stress experiment procedure</a>
+    <a class="button" onclick="copyTime();">Copy current time</a>
+    <input type="text" value="" id="timeInput" hidden>
+
     <table>
         <tr>
             <th class="id_column">id</th>
@@ -117,6 +121,17 @@
             background: #4285F4;
             color: black;
         }
+
+        a.button {
+            cursor: pointer;
+            text-decoration: none;
+            color: white;
+            border-radius: 24px;
+            display: inline-block;
+            margin: 20px 0;
+            padding: 10px 30px;
+            background-color: #4285F4;
+        }
     </style>
 
     <script>
@@ -127,6 +142,48 @@
                 else
                     alert(`Failed to send EMA ${userId} !`);
             });
+        }
+
+        function fallbackCopyTextToClipboard(text) {
+            var textArea = document.createElement("textarea");
+            textArea.value = text;
+
+            // Avoid scrolling to bottom
+            textArea.style.top = "0";
+            textArea.style.left = "0";
+            textArea.style.position = "fixed";
+
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+
+            try {
+                var successful = document.execCommand('copy');
+                var msg = successful ? 'successful' : 'unsuccessful';
+                console.log('Fallback: Copying text command was ' + msg);
+            } catch (err) {
+                console.error('Fallback: Oops, unable to copy', err);
+            }
+
+            document.body.removeChild(textArea);
+        }
+
+        function copyTextToClipboard(text) {
+            if (!navigator.clipboard) {
+                fallbackCopyTextToClipboard(text);
+                return;
+            }
+            navigator.clipboard.writeText(text).then(function () {
+                console.log('Async: Copying to clipboard was successful!');
+            }, function (err) {
+                console.error('Async: Could not copy text: ', err);
+            });
+        }
+
+        function copyTime() {
+            let dt = new Date();
+            copyTextToClipboard(dt.getTime().toString())
+            alert(`Copied ${dt.toTimeString()}`);
         }
     </script>
 {% endblock %}
