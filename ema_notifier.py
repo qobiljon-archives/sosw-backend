@@ -67,4 +67,4 @@ if __name__ == '__main__':
         time.sleep(20 * 60)
         if day != datetime.now().day:
             day = datetime.now().day
-            threads = {}
+            threads = set()
