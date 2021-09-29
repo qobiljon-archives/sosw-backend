@@ -24,7 +24,7 @@ def get_daily_notification_timings():
     timing = datetime.now()
     timing = timing if timing.hour >= notification_hour_range[0] else timing.replace(hour=notification_hour_range[0], minute=0, second=0, microsecond=0)
     timings = []
-    for i in range(20):
+    for i in range(16):
         if timing.hour > notification_hour_range[1]:
             break
         timing += timedelta(minutes=randint(delay_minutes_range[0], delay_minutes_range[1]))
