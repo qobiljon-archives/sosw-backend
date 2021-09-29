@@ -19,7 +19,7 @@ from firebase_admin import messaging
 
 
 def get_daily_notification_timings():
-    notification_hour_range = (9, 23)
+    notification_hour_range = (9, 22)
     delay_minutes_range = (30, 50)
     timing = datetime.now()
     timing = timing if timing.hour >= notification_hour_range[0] else timing.replace(hour=notification_hour_range[0], minute=0, second=0, microsecond=0)
