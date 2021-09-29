@@ -211,6 +211,8 @@
             let str = "";
             for (let i = 0; i < arr.length; i++)
                 str += `\n${i}. ${arr[i]}`;
+            
+            copyTextToClipboard(str);
             alert(str);
         }
     </script>
