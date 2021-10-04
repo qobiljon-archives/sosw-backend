@@ -17,6 +17,7 @@ def handle_index(request):
                 'sensing_amount': SensingDataCount.objects.get(participant=participant).count,
                 'ema_amount': EMAData.objects.filter(participant=participant).count()
             }]
+        participants.sort(key=lambda x: x['id'])
         return render(request=request, template_name='index.html', context={
             'title': 'Stress with smartwatches',
             'participants': participants
