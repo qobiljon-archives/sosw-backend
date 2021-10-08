@@ -3,6 +3,8 @@ import os, django
 import threading
 import time
 
+from requests import HTTPError
+
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "StressServer.settings")
 django.setup()
 
@@ -33,21 +35,24 @@ def get_daily_notification_timings():
 
 
 def send_ema_notification(fcm_token):
-    messaging.send(message=messaging.Message(
-        notification=messaging.Notification(
-            title="EMA time!",
-            body=f'Please fill an EMA about your feelings and activity ☺'
-        ),
-        android=messaging.AndroidConfig(
-            priority='high',
-            notification=messaging.AndroidNotification(
+    try:
+        messaging.send(message=messaging.Message(
+            notification=messaging.Notification(
                 title="EMA time!",
-                body=f'Please fill an EMA about your feelings and activity ☺',
-                channel_id='stressemaapp'
-            )
-        ),
-        token=fcm_token
-    ), app=firebase_app)
+                body=f'Please fill an EMA about your feelings and activity ☺'
+            ),
+            android=messaging.AndroidConfig(
+                priority='high',
+                notification=messaging.AndroidNotification(
+                    title="EMA time!",
+                    body=f'Please fill an EMA about your feelings and activity ☺',
+                    channel_id='stressemaapp'
+                )
+            ),
+            token=fcm_token
+        ), app=firebase_app)
+    except HTTPError as e:
+        print(e)
 
 
 if __name__ == '__main__':
@@ -62,7 +67,8 @@ if __name__ == '__main__':
                 timings = get_daily_notification_timings()
                 for dt in timings:
                     threading.Timer((dt - datetime.now()).total_seconds(), send_ema_notification, args=(participant.fcm_token,)).start()
-                print(f'EMA for participant({participant.id}): {timings[0].strftime("%m/%d %H:%M")}, {", ".join([x.strftime("%H:%M") for x in timings[1:]])}')
+                if len(timings) > 0:
+                    print(f'EMA for participant({participant.id}): {timings[0].strftime("%m/%d %H:%M")}', '' if len(timings) == 1 else ", ".join([x.strftime("%H:%M") for x in timings[1:]]))
                 threads.add(participant)
         time.sleep(20 * 60)
         if day != datetime.now().day:
