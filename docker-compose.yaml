@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  postgres:
+    container_name: postgres
+    image: postgres:bullseye
+    ports:
+      - ${DB_PORT}:5432
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PWD}
+      POSTGRES_DATABASE: ${DB_NAME}
+
+  #dashboard:
+  #  container_name: stress-server
+  #  depends_on:
+  #    - nginx-static
+  #    - postgres
+  #  build:
+  #    context: .
+  #    dockerfile: Dockerfile
+  #  network_mode: host
+  #  environment:
+  #    SERVERNAMES: ${SERVERNAMES}
+  #    DB_HOST: host.docker.internal #${DB_HOST}
+  #    DB_PORT: ${DB_PORT}
+  #    DB_USER: ${DB_USER}
+  #    DB_PWD: ${DB_PWD}
+  #    DB_NAME: ${DB_NAME}
+  #  ports:
+  #    - '${APP_PORT}:8000'

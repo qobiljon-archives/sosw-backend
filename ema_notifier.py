@@ -5,7 +5,7 @@ import time
 
 from requests import HTTPError
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "StressServer.settings")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "dashboard.settings")
 django.setup()
 
 from datetime import datetime

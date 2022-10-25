@@ -4,7 +4,7 @@
     <a class="button" href="{% static 'procedure.png' %}">Stress experiment procedure</a>
     <a class="button" onclick="randomOrder();">PPG accuracy random order</a>
     <a class="button" onclick="copyTime();">Copy current time</a>
-    <input type="text" value="" id="timeInput" hidden>
+    <label><input type="text" value="" id="timeInput" hidden></label>
 
     <table>
         <tr>
@@ -105,24 +105,6 @@
         {#transition: all 0.3s;#}
         }
 
-        img.action_button_red {
-            background: orangered;
-            vertical-align: middle;
-            padding: 3px;
-            margin: 2px 0;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-size: larger;
-            cursor: pointer;
-        {#transition: all 0.3s;#}
-        }
-
-        img.action_button_green:hover, img.action_button_red:hover {
-            background: #4285F4;
-            color: black;
-        }
-
         a.button {
             cursor: pointer;
             text-decoration: none;
@@ -146,7 +128,7 @@
         }
 
         function fallbackCopyTextToClipboard(text) {
-            var textArea = document.createElement("textarea");
+            const textArea = document.createElement("textarea");
             textArea.value = text;
 
             // Avoid scrolling to bottom
@@ -159,8 +141,8 @@
             textArea.select();
 
             try {
-                var successful = document.execCommand('copy');
-                var msg = successful ? 'successful' : 'unsuccessful';
+                const successful = document.execCommand('copy');
+                const msg = successful ? 'successful' : 'unsuccessful';
                 console.log('Fallback: Copying text command was ' + msg);
             } catch (err) {
                 console.error('Fallback: Oops, unable to copy', err);
@@ -211,7 +193,7 @@
             let str = "";
             for (let i = 0; i < arr.length; i++)
                 str += `\n${i}. ${arr[i]}`;
-            
+
             copyTextToClipboard(str);
             alert(str);
         }

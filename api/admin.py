@@ -1,37 +1,32 @@
-from api.models import Participant
 from api.models import AccelerometerData
-from api.models import InterbeatIntervalData
-from api.models import LightIntensityData
-from api.models import EMAData
 from api.models import SensingDataCount
+from api.models import Participant
+from api.models import BVPData
+from api.models import EMAData
+
 from django.contrib import admin
 
 
 @admin.register(Participant)
 class ParticipantAdmin(admin.ModelAdmin):
-    list_display = ['id', 'name', 'fcm_token', 'smartwatch_serial_number']
+	list_display = ['id', 'name', 'fcm_token', 'smartwatch_serial_number']
 
 
-@admin.register(InterbeatIntervalData)
-class InterbeatIntervalDataAdmin(admin.ModelAdmin):
-    list_display = ['participant', 'timestamp', 'interbeat_interval']
-
-
-@admin.register(LightIntensityData)
-class LightIntensityDataAdmin(admin.ModelAdmin):
-    list_display = ['participant', 'timestamp', 'light_intensity']
+@admin.register(BVPData)
+class BVPDataAdmin(admin.ModelAdmin):
+	list_display = ['participant', 'timestamp', 'value']
 
 
 @admin.register(AccelerometerData)
 class AccelerometerDataAdmin(admin.ModelAdmin):
-    list_display = ['participant', 'timestamp', 'x', 'y', 'z']
+	list_display = ['participant', 'timestamp', 'x', 'y', 'z']
 
 
 @admin.register(EMAData)
 class EMADataAdmin(admin.ModelAdmin):
-    list_display = ['participant', 'timestamp', 'response']
+	list_display = ['participant', 'timestamp', 'response']
 
 
 @admin.register(SensingDataCount)
 class SensingDataCountAdmin(admin.ModelAdmin):
-    list_display = ['participant', 'count']
+	list_display = ['participant', 'count']
