@@ -84,10 +84,13 @@ WSGI_APPLICATION = 'dashboard.wsgi.application'
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
 DATABASES = {
+	# SQLite3
 	# 'default': {
 	#     'ENGINE': 'django.db.backends.sqlite3',
 	#     'NAME': BASE_DIR / 'db.sqlite3',
 	# }
+
+	# PostgreSQL
 	'default': {
 		'ENGINE': 'django.db.backends.postgresql_psycopg2',
 		'HOST': environ['DB_HOST'],
@@ -135,7 +138,7 @@ TIME_ZONE = 'Asia/Seoul'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATIC_URL = '/static/'
 STATICFILES_DIRS = (
-	os.path.join(BASE_DIR, 'dashboard', 'static'),
+	os.path.join(BASE_DIR, 'dashboard', 'staticfiles'),
 )
 
 # Default primary key field type

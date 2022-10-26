@@ -4,14 +4,13 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-asgiref = "*"
 django = "*"
-psycopg2 = "*"
 pytz = "*"
-sqlparse = "*"
+psycopg2 = "*"
 firebase-admin = "*"
 python-dotenv = "*"
 gunicorn = "*"
+mysqlclient = "*"
 
 [dev-packages]
 

@@ -4,6 +4,8 @@ services:
   postgres:
     container_name: postgres
     image: postgres:bullseye
+    volumes:
+      - "stress-vol:/var/lib/postgresql/data"
     ports:
       - ${DB_PORT}:5432
     environment:
@@ -14,7 +16,8 @@ services:
   #dashboard:
   #  container_name: stress-server
   #  depends_on:
-  #    - nginx-static
+  #    - postgres
+  #  links:
   #    - postgres
   #  build:
   #    context: .
@@ -29,3 +32,7 @@ services:
   #    DB_NAME: ${DB_NAME}
   #  ports:
   #    - '${APP_PORT}:8000'
+
+
+volumes:
+  stress-vol:
