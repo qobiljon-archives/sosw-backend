@@ -10,7 +10,6 @@ psycopg2 = "*"
 firebase-admin = "*"
 python-dotenv = "*"
 gunicorn = "*"
-mysqlclient = "*"
 
 [dev-packages]
 
