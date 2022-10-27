@@ -9,7 +9,7 @@ from django.contrib import admin
 
 @admin.register(Participant)
 class ParticipantAdmin(admin.ModelAdmin):
-	list_display = ['id', 'name', 'fcm_token', 'smartwatch_serial_number']
+	list_display = ['id', 'name', 'fcm_token']
 
 
 @admin.register(BVPData)
