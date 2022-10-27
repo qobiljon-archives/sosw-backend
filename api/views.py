@@ -63,7 +63,7 @@ def handle_send_ema_notification_api(request):
 		if p.fcm_token:
 			global firebase_app
 			if not firebase_app:
-				firebase_app = firebase_admin.initialize_app(firebase_admin.credentials.Certificate('stressEmaApp.json'))
+				firebase_app = firebase_admin.initialize_app(firebase_admin.credentials.Certificate('fcm_secret.json'))
 			messaging.send(message=messaging.Message(
 				notification=messaging.Notification(
 					title="EMA time!",

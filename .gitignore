@@ -175,4 +175,9 @@ cython_debug/
 !.vscode/launch.json
 !.vscode/extensions.json
 .history
+
+# secrets / keys
+**secret.json
+
+# MAC specific
 .DS_Store

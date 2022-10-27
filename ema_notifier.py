@@ -57,7 +57,7 @@ def send_ema_notification(fcm_token):
 
 if __name__ == '__main__':
     if not firebase_app:
-        firebase_app = firebase_admin.initialize_app(firebase_admin.credentials.Certificate('stressEmaApp.json'))
+        firebase_app = firebase_admin.initialize_app(firebase_admin.credentials.Certificate('fcm_secret.json'))
 
     day = datetime.now().day
     threads = set()
