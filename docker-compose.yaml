@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   postgres:
-    container_name: postgres
+    container_name: sosw-postgres
     image: postgres:bullseye
     volumes:
       - "stress-vol:/var/lib/postgresql/data"
@@ -14,7 +14,7 @@ services:
       POSTGRES_DATABASE: ${DB_NAME}
 
   dashboard:
-   container_name: stress-server
+   container_name: sosw-api-server
    depends_on:
      - postgres
    links:
