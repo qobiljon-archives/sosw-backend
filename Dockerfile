@@ -29,15 +29,16 @@ COPY --from=deps /.venv /.venv
 ENV PATH="/.venv/bin:$PATH"
 
 # set working directory
-RUN useradd --create-home easytrack
-WORKDIR /home/easytrack
-USER easytrack
+RUN useradd --create-home sosw
+WORKDIR /home/sosw
+USER sosw
 
 # install gunicorn and the app
 RUN pip install -U gunicorn
 COPY dashboard dashboard
-COPY templates templates
-COPY .gitignore manage.py gunicorn.ini ./
+COPY api api
+COPY static static
+COPY manage.py gunicorn.ini ema_notifier.py ./
 
 # open app port and run the app
 EXPOSE 8000
