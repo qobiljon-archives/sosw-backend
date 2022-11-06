@@ -38,14 +38,14 @@ def send_ema_notification(fcm_token):
     try:
         messaging.send(message=messaging.Message(
             notification=messaging.Notification(
-                title="EMA time!",
-                body=f'Please fill an EMA about your feelings and activity ☺'
+                title="Stress report time!",
+                body="Please log your current situation and stress levels."
             ),
             android=messaging.AndroidConfig(
                 priority='high',
                 notification=messaging.AndroidNotification(
-                    title="EMA time!",
-                    body=f'Please fill an EMA about your feelings and activity ☺',
+                    title="Stress report time!",
+                    body="Please log your current situation and stress levels.",
                     channel_id='stressemaapp'
                 )
             ),

@@ -23,25 +23,15 @@ firebase_app = None
 @require_http_methods(['POST', 'GET'])
 def handle_auth_api(request):
 	args = json.loads(request.body.decode())
-	assert all(x in args for x in ['full_name', 'date_of_birth'])
+	assert all(x in args for x in ['full_name', 'date_of_birth', 'fcm_token'])
 
 	date_of_birth = dt.strptime(args['date_of_birth'], '%Y%m%d')
 	if not Participant.objects.filter(full_name=args['full_name'], date_of_birth=date_of_birth).exists():
-		Participant.objects.create(full_name=args['full_name'], date_of_birth=date_of_birth)
-
-
-@csrf_exempt
-@require_http_methods(['POST', 'GET'])
-def handle_set_fcm_token_api(request):
-	params = request.POST if 'userId' in request.POST else json.loads(request.body.decode())
-	user_id = int(params['userId'])
-	if Participant.objects.filter(id=user_id).exists():
-		p = Participant.objects.get(id=user_id)
-		p.fcm_token = params['fcmToken']
-		p.save()
-		return JsonResponse(data={'success': True, 'fcmToken': p.fcm_token})
+		Participant.objects.create(full_name=args['full_name'], date_of_birth=date_of_birth, fcm_token=args['fcm_token'])
 	else:
-		return JsonResponse(data={'success': False})
+		participant = Participant.objects.get(full_name=args['full_name'], date_of_birth=date_of_birth)
+		participant.fcm_token = args['fcm_token']
+		participant.save()
 
 
 @csrf_exempt
@@ -57,14 +47,14 @@ def handle_send_ema_push_api(request):
 				firebase_app = firebase_admin.initialize_app(firebase_admin.credentials.Certificate('fcm_secret.json'))
 			messaging.send(message=messaging.Message(
 				notification=messaging.Notification(
-					title="EMA time!",
-					body=f'Please fill an EMA about your feelings and activity ☺'
+					title="Stress report time!",
+					body="Please log your current situation and stress levels."
 				),
 				android=messaging.AndroidConfig(
 					priority='high',
 					notification=messaging.AndroidNotification(
-						title="EMA time!",
-						body=f'Please fill an EMA about your feelings and activity ☺',
+						title="Stress report time!",
+						body="Please log your current situation and stress levels.",
 						channel_id='stressemaapp'
 					)
 				),
