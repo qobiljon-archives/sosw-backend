@@ -5,7 +5,7 @@ import time
 
 from requests import HTTPError
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "StressServer.settings")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "dashboard.settings")
 django.setup()
 
 from datetime import datetime
@@ -38,14 +38,14 @@ def send_ema_notification(fcm_token):
     try:
         messaging.send(message=messaging.Message(
             notification=messaging.Notification(
-                title="EMA time!",
-                body=f'Please fill an EMA about your feelings and activity ☺'
+                title="Stress report time!",
+                body="Please log your current situation and stress levels."
             ),
             android=messaging.AndroidConfig(
                 priority='high',
                 notification=messaging.AndroidNotification(
-                    title="EMA time!",
-                    body=f'Please fill an EMA about your feelings and activity ☺',
+                    title="Stress report time!",
+                    body="Please log your current situation and stress levels.",
                     channel_id='stressemaapp'
                 )
             ),
@@ -57,7 +57,7 @@ def send_ema_notification(fcm_token):
 
 if __name__ == '__main__':
     if not firebase_app:
-        firebase_app = firebase_admin.initialize_app(firebase_admin.credentials.Certificate('stressEmaApp.json'))
+        firebase_app = firebase_admin.initialize_app(firebase_admin.credentials.Certificate('fcm_secret.json'))
 
     day = datetime.now().day
     threads = set()

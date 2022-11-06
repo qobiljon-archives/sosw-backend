@@ -1,37 +1,27 @@
+from api.models import Accelerometer
 from api.models import Participant
-from api.models import AccelerometerData
-from api.models import InterbeatIntervalData
-from api.models import LightIntensityData
-from api.models import EMAData
-from api.models import SensingDataCount
+from api.models import BVP
+from api.models import SelfReport
+
 from django.contrib import admin
 
 
 @admin.register(Participant)
 class ParticipantAdmin(admin.ModelAdmin):
-    list_display = ['id', 'name', 'fcm_token', 'smartwatch_serial_number']
+	list_display = ['full_name', 'date_of_birth', 'fcm_token']
 
 
-@admin.register(InterbeatIntervalData)
-class InterbeatIntervalDataAdmin(admin.ModelAdmin):
-    list_display = ['participant', 'timestamp', 'interbeat_interval']
+@admin.register(BVP)
+class BVPAdmin(admin.ModelAdmin):
+	list_display = ['participant', 'timestamp', 'value']
 
 
-@admin.register(LightIntensityData)
-class LightIntensityDataAdmin(admin.ModelAdmin):
-    list_display = ['participant', 'timestamp', 'light_intensity']
+@admin.register(Accelerometer)
+class AccelerometerAdmin(admin.ModelAdmin):
+	list_display = ['participant', 'timestamp', 'x', 'y', 'z']
 
 
-@admin.register(AccelerometerData)
-class AccelerometerDataAdmin(admin.ModelAdmin):
-    list_display = ['participant', 'timestamp', 'x', 'y', 'z']
-
-
-@admin.register(EMAData)
-class EMADataAdmin(admin.ModelAdmin):
-    list_display = ['participant', 'timestamp', 'response']
-
-
-@admin.register(SensingDataCount)
-class SensingDataCountAdmin(admin.ModelAdmin):
-    list_display = ['participant', 'count']
+@admin.register(SelfReport)
+class SelfReportAdmin(admin.ModelAdmin):
+	list_display = ['participant', 'timestamp', 'pss_control', 'pss_confident', 'pss_yourway', 'pss_difficulties',
+	                'stresslvl', 'social_settings', 'location', 'activity']

@@ -4,13 +4,12 @@
     <a class="button" href="{% static 'procedure.png' %}">Stress experiment procedure</a>
     <a class="button" onclick="randomOrder();">PPG accuracy random order</a>
     <a class="button" onclick="copyTime();">Copy current time</a>
-    <input type="text" value="" id="timeInput" hidden>
+    <label><input type="text" value="" id="timeInput" hidden></label>
 
     <table>
         <tr>
             <th class="id_column">id</th>
             <th class="name_column">Name</th>
-            <th class="amount_column">Sensing<br>data #</th>
             <th class="amount_column">EMA #</th>
             <th class="actions_column">Actions</th>
         </tr>
@@ -18,7 +17,6 @@
             <tr>
                 <td class="id_column">{{ participant.id }}</td>
                 <td class="name_column">{{ participant.name }}</td>
-                <td class="amount_column">{{ participant.sensing_amount }}</td>
                 <td class="amount_column">{{ participant.ema_amount }}</td>
                 <td class="actions_column">
                     {% if participant.fcm_token %}
@@ -105,24 +103,6 @@
         {#transition: all 0.3s;#}
         }
 
-        img.action_button_red {
-            background: orangered;
-            vertical-align: middle;
-            padding: 3px;
-            margin: 2px 0;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-size: larger;
-            cursor: pointer;
-        {#transition: all 0.3s;#}
-        }
-
-        img.action_button_green:hover, img.action_button_red:hover {
-            background: #4285F4;
-            color: black;
-        }
-
         a.button {
             cursor: pointer;
             text-decoration: none;
@@ -137,7 +117,7 @@
 
     <script>
         function sendEmaRequest(userId) {
-            $.post('{% url 'send_ema_notification_api' %}', {userId: userId}, function (res) {
+            $.post('{% url 'send_ema_push_api' %}', {userId: userId}, function (res) {
                 if (res.success)
                     alert(`EMA sent to user ${userId} !`);
                 else
@@ -146,7 +126,7 @@
         }
 
         function fallbackCopyTextToClipboard(text) {
-            var textArea = document.createElement("textarea");
+            const textArea = document.createElement("textarea");
             textArea.value = text;
 
             // Avoid scrolling to bottom
@@ -159,8 +139,8 @@
             textArea.select();
 
             try {
-                var successful = document.execCommand('copy');
-                var msg = successful ? 'successful' : 'unsuccessful';
+                const successful = document.execCommand('copy');
+                const msg = successful ? 'successful' : 'unsuccessful';
                 console.log('Fallback: Copying text command was ' + msg);
             } catch (err) {
                 console.error('Fallback: Oops, unable to copy', err);
@@ -206,12 +186,12 @@
         }
 
         function randomOrder() {
-            let arr = ['static, tight', 'walking, tight', 'running, tight', 'static, medium', 'walking, medium', 'running, medium', 'static, loose', 'walking, loose', 'running, loose'];
+            let arr = ['staticfiles, tight', 'walking, tight', 'running, tight', 'staticfiles, medium', 'walking, medium', 'running, medium', 'staticfiles, loose', 'walking, loose', 'running, loose'];
             arr = shuffle(arr);
             let str = "";
             for (let i = 0; i < arr.length; i++)
                 str += `\n${i}. ${arr[i]}`;
-            
+
             copyTextToClipboard(str);
             alert(str);
         }

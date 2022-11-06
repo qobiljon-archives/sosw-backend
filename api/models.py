@@ -1,47 +1,40 @@
 from django.db import models
 
-RRI_ID = 1
-PPG_ID = 2
-ACC_ID = 3
-
 
 class Participant(models.Model):
-    id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=256, null=True, default=None)
-    fcm_token = models.CharField(max_length=512, null=True, default=None)
-    smartwatch_serial_number = models.CharField(max_length=256, null=True, default=None)
+	full_name = models.CharField(max_length=256)
+	date_of_birth = models.DateTimeField()
+	fcm_token = models.CharField(max_length=512, null=True, default=None)
+
+	class Meta:
+		unique_together = ('full_name', 'date_of_birth',)
 
 
-class InterbeatIntervalData(models.Model):
-    participant = models.ForeignKey(to='Participant', null=True, on_delete=models.SET_NULL)
-    timestamp = models.DateTimeField()
-    interbeat_interval = models.IntegerField()
-    indexes = [models.Index(fields=['user', 'timestamp'])]
+class BVP(models.Model):
+	participant = models.ForeignKey(to='Participant', null=True, on_delete=models.SET_NULL)
+	timestamp = models.DateTimeField()
+	value = models.FloatField()
+	indexes = [models.Index(fields=['participant', 'timestamp'])]
 
 
-class LightIntensityData(models.Model):
-    participant = models.ForeignKey(to='Participant', null=True, on_delete=models.SET_NULL)
-    timestamp = models.DateTimeField()
-    light_intensity = models.FloatField()
-    indexes = [models.Index(fields=['user', 'timestamp'])]
+class Accelerometer(models.Model):
+	participant = models.ForeignKey(to='Participant', null=True, on_delete=models.SET_NULL)
+	timestamp = models.DateTimeField()
+	x = models.FloatField()
+	y = models.FloatField()
+	z = models.FloatField()
+	indexes = [models.Index(fields=['participant', 'timestamp'])]
 
 
-class AccelerometerData(models.Model):
-    participant = models.ForeignKey(to='Participant', null=True, on_delete=models.SET_NULL)
-    timestamp = models.DateTimeField()
-    x = models.FloatField()
-    y = models.FloatField()
-    z = models.FloatField()
-    indexes = [models.Index(fields=['user', 'timestamp'])]
-
-
-class EMAData(models.Model):
-    participant = models.ForeignKey(to='Participant', null=True, on_delete=models.SET_NULL)
-    timestamp = models.DateTimeField()
-    response = models.CharField(max_length=2048)
-    indexes = [models.Index(fields=['user', 'timestamp'])]
-
-
-class SensingDataCount(models.Model):
-    participant = models.OneToOneField(to='Participant', on_delete=models.CASCADE)
-    count = models.IntegerField(default=0)
+class SelfReport(models.Model):
+	participant = models.ForeignKey(to='Participant', null=True, on_delete=models.SET_NULL)
+	timestamp = models.DateTimeField()
+	pss_control = models.IntegerField()
+	pss_confident = models.IntegerField()
+	pss_yourway = models.IntegerField()
+	pss_difficulties = models.IntegerField()
+	stresslvl = models.IntegerField()
+	social_settings = models.CharField(max_length=128)
+	location = models.CharField(max_length=128)
+	activity = models.CharField(max_length=128)
+	indexes = [models.Index(fields=['participant', 'timestamp'])]
