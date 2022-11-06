@@ -8,20 +8,20 @@ from django.contrib import admin
 
 @admin.register(Participant)
 class ParticipantAdmin(admin.ModelAdmin):
-    list_display = ['id', 'name', 'fcm_token']
+	list_display = ['full_name', 'date_of_birth', 'fcm_token']
 
 
 @admin.register(BVP)
 class BVPAdmin(admin.ModelAdmin):
-    list_display = ['participant', 'timestamp', 'value']
+	list_display = ['participant', 'timestamp', 'value']
 
 
 @admin.register(Accelerometer)
 class AccelerometerAdmin(admin.ModelAdmin):
-    list_display = ['participant', 'timestamp', 'x', 'y', 'z']
+	list_display = ['participant', 'timestamp', 'x', 'y', 'z']
 
 
 @admin.register(SelfReport)
 class SelfReportAdmin(admin.ModelAdmin):
-    list_display = ['participant', 'timestamp', 'pss_control', 'pss_confident', 'pss_yourway', 'pss_difficulties',
-                    'stresslvl', 'social_settings', 'location', 'activity']
+	list_display = ['participant', 'timestamp', 'pss_control', 'pss_confident', 'pss_yourway', 'pss_difficulties',
+	                'stresslvl', 'social_settings', 'location', 'activity']

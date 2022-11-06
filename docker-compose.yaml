@@ -13,26 +13,26 @@ services:
       POSTGRES_PASSWORD: ${DB_PWD}
       POSTGRES_DATABASE: ${DB_NAME}
 
-  dashboard:
-   container_name: sosw-api-server
-   depends_on:
-     - postgres
-   links:
-     - postgres
-   build:
-     context: .
-     dockerfile: Dockerfile
-   environment:
-     SERVERNAMES: ${SERVERNAMES}
-     STATIC_HOST: localhost
-     STATIC_PORT: 80
-     DB_HOST: 172.17.0.1
-     DB_PORT: ${DB_PORT}
-     DB_USER: ${DB_USER}
-     DB_PWD: ${DB_PWD}
-     DB_NAME: ${DB_NAME}
-   ports:
-     - '${APP_PORT}:8000'
+#  dashboard:
+#   container_name: sosw-api-server
+#   depends_on:
+#     - postgres
+#   links:
+#     - postgres
+#   build:
+#     context: .
+#     dockerfile: Dockerfile
+#   environment:
+#     SERVERNAMES: ${SERVERNAMES}
+#     STATIC_HOST: localhost
+#     STATIC_PORT: 80
+#     DB_HOST: 172.17.0.1
+#     DB_PORT: ${DB_PORT}
+#     DB_USER: ${DB_USER}
+#     DB_PWD: ${DB_PWD}
+#     DB_NAME: ${DB_NAME}
+#   ports:
+#     - '${APP_PORT}:8000'
 
 volumes:
   stress-vol:

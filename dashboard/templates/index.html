@@ -117,7 +117,7 @@
 
     <script>
         function sendEmaRequest(userId) {
-            $.post('{% url 'send_ema_notification_api' %}', {userId: userId}, function (res) {
+            $.post('{% url 'send_ema_push_api' %}', {userId: userId}, function (res) {
                 if (res.success)
                     alert(`EMA sent to user ${userId} !`);
                 else
