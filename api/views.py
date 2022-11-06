@@ -36,6 +36,19 @@ def handle_auth_api(request):
 
 @csrf_exempt
 @require_http_methods(['POST', 'GET'])
+def handle_auth_watch_api(request):
+	args = json.loads(request.body.decode())
+	assert all(x in args for x in ['full_name', 'date_of_birth'])
+
+	date_of_birth = dt.strptime(args['date_of_birth'], '%Y%m%d')
+	if Participant.objects.filter(full_name=args['full_name'], date_of_birth=date_of_birth).exists():
+		return JsonResponse(data={'success': True})
+	else:
+		return JsonResponse(data={'success': False})
+
+
+@csrf_exempt
+@require_http_methods(['POST', 'GET'])
 def handle_send_ema_push_api(request):
 	params = request.POST if 'userId' in request.POST else json.loads(request.body.decode())
 	user_id = int(params['userId'])
