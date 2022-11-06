@@ -10,7 +10,6 @@
         <tr>
             <th class="id_column">id</th>
             <th class="name_column">Name</th>
-            <th class="amount_column">Sensing<br>data #</th>
             <th class="amount_column">EMA #</th>
             <th class="actions_column">Actions</th>
         </tr>
@@ -18,7 +17,6 @@
             <tr>
                 <td class="id_column">{{ participant.id }}</td>
                 <td class="name_column">{{ participant.name }}</td>
-                <td class="amount_column">{{ participant.sensing_amount }}</td>
                 <td class="amount_column">{{ participant.ema_amount }}</td>
                 <td class="actions_column">
                     {% if participant.fcm_token %}
