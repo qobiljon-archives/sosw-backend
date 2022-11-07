@@ -9,7 +9,7 @@ from datetime import datetime as dt
 import json
 import re
 
-from api.models import Accelerometer
+from api.models import Accelerometer, OffBody
 from django.http import JsonResponse
 from api.models import Participant
 from api.models import BVP
@@ -131,6 +131,30 @@ def handle_submit_accelerometer_data_api(request):
                     x=float(acc_data['x']),
                     y=float(acc_data['y']),
                     z=float(acc_data['z'])
+                )
+            except ValueError:
+                pass
+        res['success'] = True
+    else:
+        res['success'] = False
+
+    return JsonResponse(data=res)
+
+
+@csrf_exempt
+@require_http_methods(['POST', 'GET'])
+def handle_submit_off_body_api(request):
+    res = dict()
+
+    args = json.loads(request.body.decode())
+    full_name = args['full_name'].strip()
+    date_of_birth = dt.strptime(args['date_of_birth'].strip(), '%Y%m%d')
+    if Participant.objects.filter(full_name=full_name, date_of_birth=date_of_birth).exists():
+        for off_body_data in args['off_body_data']:
+            try:
+                OffBody.objects.create(
+                    timestamp=timezone.datetime.fromtimestamp(int(off_body_data['timestamp']) / 1000),
+                    is_off_body=off_body_data['is_off_body']
                 )
             except ValueError:
                 pass
