@@ -25,14 +25,15 @@ def handle_auth_api(request):
     res = dict()
 
     args = json.loads(request.body.decode())
-    assert all(x in args for x in ['full_name', 'date_of_birth', 'fcm_token'])
+    assert all(x in args for x in ['full_name', 'date_of_birth', 'fcm_token']) and is_valid_date(args['date_of_birth'])
 
-    date_of_birth = dt.strptime(args['date_of_birth'], '%Y%m%d')
-    if not Participant.objects.filter(full_name=args['full_name'], date_of_birth=date_of_birth).exists():
-        Participant.objects.create(full_name=args['full_name'], date_of_birth=date_of_birth, fcm_token=args['fcm_token'])
+    full_name = args['full_name'].strip()
+    date_of_birth = dt.strptime(args['date_of_birth'].strip(), '%Y%m%d')
+    if not Participant.objects.filter(full_name=full_name, date_of_birth=date_of_birth).exists():
+        Participant.objects.create(full_name=full_name, date_of_birth=date_of_birth, fcm_token=args['fcm_token'])
     else:
-        participant = Participant.objects.get(full_name=args['full_name'], date_of_birth=date_of_birth)
-        participant.fcm_token = args['fcm_token']
+        participant = Participant.objects.get(full_name=full_name, date_of_birth=date_of_birth)
+        participant.fcm_token = args['fcm_token'].strip()
         participant.save()
 
     return JsonResponse(data=res)
@@ -44,10 +45,11 @@ def handle_auth_watch_api(request):
     res = dict()
 
     args = json.loads(request.body.decode())
-    assert all(x in args for x in ['full_name', 'date_of_birth'])
+    assert all(x in args for x in ['full_name', 'date_of_birth']) and is_valid_date(args['date_of_birth'])
 
-    date_of_birth = dt.strptime(args['date_of_birth'], '%Y%m%d')
-    if Participant.objects.filter(full_name=args['full_name'], date_of_birth=date_of_birth).exists():
+    full_name = args['full_name'].strip()
+    date_of_birth = dt.strptime(args['date_of_birth'].strip(), '%Y%m%d')
+    if Participant.objects.filter(full_name=full_name, date_of_birth=date_of_birth).exists():
         res['success'] = True
     else:
         res['success'] = False
@@ -95,13 +97,14 @@ def handle_submit_bvp_data_api(request):
     res = dict()
 
     args = json.loads(request.body.decode())
-    date_of_birth = dt.strptime(args['date_of_birth'], '%Y%m%d')
-    if Participant.objects.filter(full_name=args['full_name'], date_of_birth=date_of_birth).exists():
-        for bvp_data in args['acc_data']:
+    full_name = args['full_name'].strip()
+    date_of_birth = dt.strptime(args['date_of_birth'].strip(), '%Y%m%d')
+    if Participant.objects.filter(full_name=full_name, date_of_birth=date_of_birth).exists():
+        for bvp_data in args['bvp_data']:
             try:
                 BVP.objects.create(
                     timestamp=timezone.datetime.fromtimestamp(int(bvp_data['timestamp']) / 1000),
-                    light_intensity=int(bvp_data['light_intensity'])
+                    light_intensity=float(bvp_data['light_intensity'])
                 )
             except ValueError:
                 pass
@@ -118,8 +121,9 @@ def handle_submit_accelerometer_data_api(request):
     res = dict()
 
     args = json.loads(request.body.decode())
-    date_of_birth = dt.strptime(args['date_of_birth'], '%Y%m%d')
-    if Participant.objects.filter(full_name=args['full_name'], date_of_birth=date_of_birth).exists():
+    full_name = args['full_name'].strip()
+    date_of_birth = dt.strptime(args['date_of_birth'].strip(), '%Y%m%d')
+    if Participant.objects.filter(full_name=full_name, date_of_birth=date_of_birth).exists():
         for acc_data in args['acc_data']:
             try:
                 Accelerometer.objects.create(
@@ -143,19 +147,20 @@ def handle_submit_self_report_api(request):
     res = dict()
 
     args = json.loads(request.body.decode())
-    date_of_birth = str2date(args['date_of_birth'])
+    full_name = args['full_name'].strip()
+    date_of_birth = str2date(args['date_of_birth'].strip())
 
     if Participant.objects.filter(full_name=args['full_name'], date_of_birth=date_of_birth).exists():
-        participant = Participant.objects.get(full_name=args['full_name'], date_of_birth=date_of_birth)
+        participant = Participant.objects.get(full_name=full_name, date_of_birth=date_of_birth)
         for self_report in args['self_reports']:
             SelfReport.objects.create(
                 participant=participant,
                 timestamp=dt.fromtimestamp(int(self_report['timestamp']) / 1000),
-                pss_control=self_report['pss_control'],
-                pss_confident=self_report['pss_confident'],
-                pss_yourway=self_report['pss_yourway'],
-                pss_difficulties=self_report['pss_difficulties'],
-                stresslvl=self_report['stresslvl'],
+                pss_control=int(self_report['pss_control']),
+                pss_confident=int(self_report['pss_confident']),
+                pss_yourway=int(self_report['pss_yourway']),
+                pss_difficulties=int(self_report['pss_difficulties']),
+                stresslvl=int(self_report['stresslvl']),
                 social_settings=self_report['social_settings'],
                 location=self_report['location'],
                 activity=self_report['activity']
