@@ -7,7 +7,6 @@ import firebase_admin
 
 from datetime import datetime as dt
 import json
-import re
 
 from api.models import Accelerometer, OffBody
 from django.http import JsonResponse
