@@ -37,16 +37,12 @@ def get_daily_notification_timings():
 def send_ema_notification(fcm_token):
     try:
         messaging.send(message=messaging.Message(
-            notification=messaging.Notification(
-                title="Stress report time!",
-                body="Please log your current situation and stress levels."
-            ),
             android=messaging.AndroidConfig(
                 priority='high',
                 notification=messaging.AndroidNotification(
                     title="Stress report time!",
                     body="Please log your current situation and stress levels.",
-                    channel_id='stressemaapp'
+                    channel_id='sosw.app.push'
                 )
             ),
             token=fcm_token
