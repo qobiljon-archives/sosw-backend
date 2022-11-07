@@ -13,7 +13,7 @@ class Participant(models.Model):
 class BVP(models.Model):
 	participant = models.ForeignKey(to='Participant', null=True, on_delete=models.SET_NULL)
 	timestamp = models.DateTimeField()
-	value = models.FloatField()
+	light_intensity = models.FloatField()
 	indexes = [models.Index(fields=['participant', 'timestamp'])]
 
 

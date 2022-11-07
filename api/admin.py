@@ -13,7 +13,7 @@ class ParticipantAdmin(admin.ModelAdmin):
 
 @admin.register(BVP)
 class BVPAdmin(admin.ModelAdmin):
-	list_display = ['participant', 'timestamp', 'value']
+	list_display = ['participant', 'timestamp', 'light_intensity']
 
 
 @admin.register(Accelerometer)

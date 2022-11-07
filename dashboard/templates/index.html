@@ -20,7 +20,7 @@
                 <td class="amount_column">{{ participant.ema_amount }}</td>
                 <td class="actions_column">
                     {% if participant.fcm_token %}
-                        <a title="Send EMA" onclick="sendEmaRequest({{ participant.id }});">
+                        <a title="Send EMA" onclick="sendEmaRequest({{ participant.id }}, '{{ participant.name }}');">
                             <img class="action_button_green" src="{% static 'send.png' %}" alt="send">
                         </a>
                     {% else %}N/A{% endif %}
@@ -116,12 +116,12 @@
     </style>
 
     <script>
-        function sendEmaRequest(userId) {
-            $.post('{% url 'send_ema_push_api' %}', {userId: userId}, function (res) {
+        function sendEmaRequest(pid, pname) {
+            $.post('{% url 'send_ema_push_api' %}', {pid: pid}, function (res) {
                 if (res.success)
-                    alert(`EMA sent to user ${userId} !`);
+                    alert(`EMA delivered to ${pname} (pid=${pid}) !`);
                 else
-                    alert(`Failed to send EMA ${userId} !`);
+                    alert(`Failed to deliver EMA to ${pname} (pid=${pid}) !`);
             });
         }
 
