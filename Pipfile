@@ -10,8 +10,10 @@ psycopg2-binary = "*"
 firebase-admin = "*"
 python-dotenv = "*"
 gunicorn = "*"
+djangorestframework = "*"
 
 [dev-packages]
+yapf = "*"
 
 [requires]
 python_version = "3.10"
