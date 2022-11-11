@@ -1,195 +1,112 @@
-from django.views.decorators.http import require_http_methods
-from django.views.decorators.csrf import csrf_exempt
-from django.utils import timezone
+from django.contrib.auth import authenticate
+from django.utils.timezone import datetime as dt
+
+from rest_framework import generics, permissions, authentication
+from rest_framework import serializers
+from rest_framework import response, status
+from rest_framework.exceptions import ValidationError
+from rest_framework.authtoken.models import Token
 
 from firebase_admin import messaging
 import firebase_admin
 
-from datetime import datetime as dt
-import json
+from api import models as mdl
+from api import services as svc
+from api import selectors as slc
+from api import serializers as srz
 
-from api.models import Accelerometer, OffBody
-from django.http import JsonResponse
-from api.models import Participant
-from api.models import BVP
-from api.models import SelfReport
-from api.utils import is_valid_date, str2date
-
-firebase_app = None
-
-
-@csrf_exempt
-@require_http_methods(['POST', 'GET'])
-def handle_auth_api(request):
-    res = dict()
-
-    args = json.loads(request.body.decode())
-    assert all(x in args for x in ['full_name', 'date_of_birth', 'fcm_token']) and is_valid_date(args['date_of_birth'])
-
-    full_name = args['full_name'].strip()
-    date_of_birth = dt.strptime(args['date_of_birth'].strip(), '%Y%m%d')
-    if not Participant.objects.filter(full_name=full_name, date_of_birth=date_of_birth).exists():
-        Participant.objects.create(full_name=full_name, date_of_birth=date_of_birth, fcm_token=args['fcm_token'])
-    else:
-        participant = Participant.objects.get(full_name=full_name, date_of_birth=date_of_birth)
-        participant.fcm_token = args['fcm_token'].strip()
-        participant.save()
-
-    return JsonResponse(data=res)
+# Firebase sdk
+if not firebase_admin._apps:
+  cred = firebase_admin.credentials.Certificate('fcm_secret.json')
+  firebase_app = firebase_admin.initialize_app(credential = cred)
+"""
+messaging.send(message = messaging.Message(android = messaging.AndroidConfig(priority = 'high',
+				notification = messaging.AndroidNotification(title = "Stress report time!",
+				body = "Please log your current situation and stress levels.",
+				channel_id = 'sosw.app.push')),
+				token = User.objects.get(id = pid).fcm_token),
+				app = firebase_app
+			)
+"""
 
 
-@csrf_exempt
-@require_http_methods(['POST', 'GET'])
-def handle_auth_watch_api(request):
-    res = dict()
+class Register(generics.CreateAPIView):
+  queryset = mdl.User.objects
+  serializer_class = 'InputSerializer'
 
-    args = json.loads(request.body.decode())
-    assert all(x in args for x in ['full_name', 'date_of_birth']) and is_valid_date(args['date_of_birth'])
+  def post(self, request, *args, **kwargs):
+    serializer = Register.InputSerializer(data = request.data)
+    if not serializer.is_valid():
+      return response.Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
 
-    full_name = args['full_name'].strip()
-    date_of_birth = dt.strptime(args['date_of_birth'].strip(), '%Y%m%d')
-    if Participant.objects.filter(full_name=full_name, date_of_birth=date_of_birth).exists():
-        res['success'] = True
-    else:
-        res['success'] = False
+    new_user = mdl.User.objects.create_user(
+      username = serializer.validated_data['email'],
+      email = serializer.validated_data['email'],
+      full_name = serializer.validated_data['full_name'],
+      gender = serializer.validated_data['gender'],
+      date_of_birth = serializer.validated_data['date_of_birth'],
+      password = serializer.validated_data['password'],
+    )
 
-    return JsonResponse(data=res)
+    serializer = srz.UserSerializer(instance = new_user)
+    return response.Response(serializer.data, status = status.HTTP_201_CREATED)
 
+  class InputSerializer(serializers.Serializer):
+    email = serializers.EmailField(required = True, allow_null = False, allow_blank = False)
+    full_name = serializers.CharField(max_length = 128, required = True, allow_blank = False, allow_null = False)
+    gender = serializers.CharField(max_length = 1, required = True, allow_blank = False, allow_null = False)
+    date_of_birth = serializers.DateField(input_formats = [f'%Y%m%d'], required = True, allow_null = False)
+    fcm_token = serializers.CharField(max_length = 128, required = True, allow_blank = False, allow_null = False)
+    password = serializers.CharField(required = True, allow_null = False, min_length = 8)
 
-@csrf_exempt
-@require_http_methods(['POST', 'GET'])
-def handle_send_ema_push_api(request):
-    res = dict()
+    def validate(self, attrs):
+      if mdl.User.objects.filter(email = attrs['email']).exists():
+        raise ValidationError('Email already registered')
 
-    args = request.POST if 'pid' in request.POST else json.loads(request.body.decode())
-    pid = int(args['pid'])
-    if Participant.objects.filter(id=pid).exists():
-        participant = Participant.objects.get(id=pid)
-        if participant.fcm_token:
-            global firebase_app
-            if not firebase_app:
-                firebase_app = firebase_admin.initialize_app(firebase_admin.credentials.Certificate('fcm_secret.json'))
-            messaging.send(message=messaging.Message(
-                android=messaging.AndroidConfig(
-                    priority='high',
-                    notification=messaging.AndroidNotification(
-                        title="Stress report time!",
-                        body="Please log your current situation and stress levels.",
-                        channel_id='sosw.app.push'
-                    )
-                ),
-                token=participant.fcm_token
-            ), app=firebase_app)
-            res['success'] = True
-            res['fcm_token'] = participant.fcm_token
-        else:
-            res['success'] = False
-    else:
-        res['success'] = False
+      if attrs['gender'] not in ['F', 'M']:
+        raise ValidationError('Gender can be "F" or "M" only')
 
-    return JsonResponse(data=res)
+      if attrs['date_of_birth'] > dt.today().date():
+        raise ValidationError('Date of birth cannot be in future!')
+
+      return attrs
+
+    class Meta:
+      fields = ['email', 'full_name', 'gender', 'date_of_birth', 'password']
+      extra_kwargs = {'password': {'write_only': True}}
 
 
-@csrf_exempt
-@require_http_methods(['POST', 'GET'])
-def handle_submit_bvp_data_api(request):
-    res = dict()
+class SignIn(generics.CreateAPIView):
+  queryset = mdl.User.objects
+  serializer_class = 'InputSerializer'
 
-    args = json.loads(request.body.decode())
-    full_name = args['full_name'].strip()
-    date_of_birth = dt.strptime(args['date_of_birth'].strip(), '%Y%m%d')
-    if Participant.objects.filter(full_name=full_name, date_of_birth=date_of_birth).exists():
-        for bvp_data in args['bvp_data']:
-            try:
-                BVP.objects.create(
-                    timestamp=timezone.datetime.fromtimestamp(int(bvp_data['timestamp']) / 1000),
-                    light_intensity=float(bvp_data['light_intensity'])
-                )
-            except ValueError:
-                pass
-        res['success'] = True
-    else:
-        res['success'] = False
+  def post(self, request, *args, **kwargs):
+    serializer = SignIn.InputSerializer(data = request.data)
+    if not serializer.is_valid():
+      return response.Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
 
-    return JsonResponse(data=res)
+    user = authenticate(
+      username = serializer.validated_data['email'],
+      password = serializer.validated_data['password'],
+    )
 
+    if not user:
+      return response.Response(dict(credentials = 'Incorrect credentials'), status = status.HTTP_400_BAD_REQUEST)
+    token = Token.objects.get(user = user)
 
-@csrf_exempt
-@require_http_methods(['POST', 'GET'])
-def handle_submit_accelerometer_data_api(request):
-    res = dict()
+    return response.Response({'token': token.key}, status = status.HTTP_200_OK)
 
-    args = json.loads(request.body.decode())
-    full_name = args['full_name'].strip()
-    date_of_birth = dt.strptime(args['date_of_birth'].strip(), '%Y%m%d')
-    if Participant.objects.filter(full_name=full_name, date_of_birth=date_of_birth).exists():
-        for acc_data in args['acc_data']:
-            try:
-                Accelerometer.objects.create(
-                    timestamp=timezone.datetime.fromtimestamp(int(acc_data['timestamp']) / 1000),
-                    x=float(acc_data['x']),
-                    y=float(acc_data['y']),
-                    z=float(acc_data['z'])
-                )
-            except ValueError:
-                pass
-        res['success'] = True
-    else:
-        res['success'] = False
+  class InputSerializer(serializers.Serializer):
+    email = serializers.EmailField(required = True, allow_null = False, allow_blank = False)
+    password = serializers.CharField(required = True, allow_null = False, min_length = 8)
 
-    return JsonResponse(data=res)
+    class Meta:
+      fields = ['email', 'password']
+      extra_kwargs = {'password': {'write_only': True}}
 
 
-@csrf_exempt
-@require_http_methods(['POST', 'GET'])
-def handle_submit_off_body_api(request):
-    res = dict()
-
-    args = json.loads(request.body.decode())
-    full_name = args['full_name'].strip()
-    date_of_birth = dt.strptime(args['date_of_birth'].strip(), '%Y%m%d')
-    if Participant.objects.filter(full_name=full_name, date_of_birth=date_of_birth).exists():
-        for off_body_data in args['off_body_data']:
-            try:
-                OffBody.objects.create(
-                    timestamp=timezone.datetime.fromtimestamp(int(off_body_data['timestamp']) / 1000),
-                    is_off_body=off_body_data['is_off_body']
-                )
-            except ValueError:
-                pass
-        res['success'] = True
-    else:
-        res['success'] = False
-
-    return JsonResponse(data=res)
-
-
-@csrf_exempt
-@require_http_methods(['POST', 'GET'])
-def handle_submit_self_report_api(request):
-    res = dict()
-
-    args = json.loads(request.body.decode())
-    full_name = args['full_name'].strip()
-    date_of_birth = str2date(args['date_of_birth'].strip())
-
-    if Participant.objects.filter(full_name=args['full_name'], date_of_birth=date_of_birth).exists():
-        participant = Participant.objects.get(full_name=full_name, date_of_birth=date_of_birth)
-        for self_report in args['self_reports']:
-            SelfReport.objects.create(
-                participant=participant,
-                timestamp=dt.fromtimestamp(int(self_report['timestamp']) / 1000),
-                pss_control=int(self_report['pss_control']),
-                pss_confident=int(self_report['pss_confident']),
-                pss_yourway=int(self_report['pss_yourway']),
-                pss_difficulties=int(self_report['pss_difficulties']),
-                stresslvl=int(self_report['stresslvl']),
-                social_settings=self_report['social_settings'],
-                location=self_report['location'],
-                activity=self_report['activity']
-            )
-        res['success'] = True
-    else:
-        res['success'] = False
-
-    return JsonResponse(data=res)
+class InsertSelfReport(generics.CreateAPIView):
+  queryset = mdl.SelfReport.objects
+  serializer_class = srz.SelfReportSerializer
+  authentication_classes = [authentication.TokenAuthentication]
+  permission_classes = [permissions.IsAuthenticated]

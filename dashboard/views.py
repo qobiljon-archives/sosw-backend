@@ -1,12 +1,12 @@
 from django.shortcuts import render, redirect
 
-from api.models import Participant, SelfReport
+from api.models import User, SelfReport
 
 
 def handle_index(request):
 	if request.user.is_superuser:
 		participants = []
-		for participant in Participant.objects.all():
+		for participant in User.objects.all():
 			participants += [{
 				'id': participant.id,
 				'name': participant.full_name if participant.full_name else 'N/A',
