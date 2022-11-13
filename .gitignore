@@ -181,3 +181,7 @@ cython_debug/
 
 # MAC specific
 .DS_Store
+
+# formatting
+.style.yapf
+sosw-data/
