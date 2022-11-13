@@ -28,7 +28,7 @@ if not firebase_admin._apps:
 
 
 class SignUp(generics.CreateAPIView):
-  serializer_class = 'InputSerializer'
+  http_method_names = ['post']
 
   def post(self, request, *args, **kwargs):
     serializer = SignUp.InputSerializer(data = request.data)
@@ -74,8 +74,7 @@ class SignUp(generics.CreateAPIView):
 
 
 class SignIn(generics.CreateAPIView):
-  queryset = mdl.User.objects
-  serializer_class = 'InputSerializer'
+  http_method_names = ['post']
 
   def post(self, request, *args, **kwargs):
     serializer = SignIn.InputSerializer(data = request.data)
