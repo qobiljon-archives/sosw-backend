@@ -34,7 +34,7 @@ class SignUp(generics.CreateAPIView):
     full_name = serializers.CharField(max_length = 128, required = True, allow_blank = False, allow_null = False)
     gender = serializers.CharField(max_length = 1, required = True, allow_blank = False, allow_null = False)
     date_of_birth = serializers.DateField(input_formats = [f'%Y%m%d'], required = True, allow_null = False)
-    fcm_token = serializers.CharField(max_length = 128, default = None, allow_blank = True, allow_null = True)
+    fcm_token = serializers.CharField(max_length = 256, default = None, allow_blank = True, allow_null = True)
     password = serializers.CharField(required = True, allow_null = False, min_length = 8)
 
     def validate(self, attrs):
@@ -107,7 +107,7 @@ class SignIn(generics.CreateAPIView):
 class SetFcmToken(generics.UpdateAPIView):
 
   class InputSerializer(serializers.Serializer):
-    fcm_token = serializers.CharField(max_length = 128, required = True, allow_blank = False, allow_null = False)
+    fcm_token = serializers.CharField(max_length = 256, required = True, allow_blank = False, allow_null = False)
 
     class Meta:
       fields = '__all__'

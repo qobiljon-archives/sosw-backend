@@ -12,7 +12,7 @@ class UserSerializer(serializers.ModelSerializer):
   full_name = serializers.CharField(max_length = 64, required = True, allow_blank = False, allow_null = False)
   gender = serializers.CharField(max_length = 1, required = True, allow_blank = False, allow_null = False)
   date_of_birth = serializers.DateField(required = True, allow_null = False)
-  fcm_token = serializers.CharField(max_length = 128, required = True, allow_blank = False, allow_null = False)
+  fcm_token = serializers.CharField(max_length = 256, required = True, allow_blank = False, allow_null = False)
 
   class Meta:
     model = mdl.User

@@ -160,4 +160,4 @@ STATICFILES_DIRS = (os.path.join(BASE_DIR, 'dashboard', 'staticfiles'),)
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-APPEND_SLASH = True
+APPEND_SLASH = False
