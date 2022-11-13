@@ -52,7 +52,7 @@ class SignUp(generics.CreateAPIView):
     full_name = serializers.CharField(max_length = 128, required = True, allow_blank = False, allow_null = False)
     gender = serializers.CharField(max_length = 1, required = True, allow_blank = False, allow_null = False)
     date_of_birth = serializers.DateField(input_formats = [f'%Y%m%d'], required = True, allow_null = False)
-    fcm_token = serializers.CharField(max_length = 128, required = True, allow_blank = False, allow_null = False)
+    fcm_token = serializers.CharField(max_length = 128, default = None, allow_blank = True, allow_null = True)
     password = serializers.CharField(required = True, allow_null = False, min_length = 8)
 
     def validate(self, attrs):
@@ -99,6 +99,28 @@ class SignIn(generics.CreateAPIView):
     class Meta:
       fields = '__all__'
       extra_kwargs = {'password': {'write_only': True}}
+
+
+class SetFcmToken(generics.UpdateAPIView):
+  authentication_classes = [authentication.TokenAuthentication]
+  permission_classes = [permissions.IsAuthenticated]
+  serializer_class = 'InputSerializer'
+
+  def update(self, request, *args, **kwargs):
+    serializer = SetFcmToken.InputSerializer(data = request.data)
+    if not serializer.is_valid():
+      return response.Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
+
+    request.user.fcm_token = serializer.validated_data['fcm_token']
+    request.user.save()
+
+    return response.Response(status = status.HTTP_200_OK)
+
+  class InputSerializer(serializers.Serializer):
+    fcm_token = serializers.CharField(max_length = 128, required = True, allow_blank = False, allow_null = False)
+
+    class Meta:
+      fields = '__all__'
 
 
 class InsertSelfReport(generics.CreateAPIView):

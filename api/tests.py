@@ -67,7 +67,6 @@ class SignUpTest(BaseTestCase):
           full_name = '홍길동',
           gender = 'M',
           date_of_birth = '19960527',
-          fcm_token = 'dummy',
           password = 'example_password',
         ),
       ))
@@ -89,6 +88,25 @@ class SignUpTest(BaseTestCase):
       password = self.password,
     )))
     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
+
+class FcmTokenTest(BaseTestCase):
+
+  def __init__(self, *args, **kwargs):
+    self.__url = get_url('setFcmTokenApi')
+    self.__view = api.SetFcmToken.as_view()
+    super().__init__(*args, **kwargs)
+
+  def test_update_fcm(self):
+    user, _ = self.get_token()
+    user.fcm_token = None
+    user.save()
+
+    new_token_value = 'new_dummy_fcm_token'
+    req = self.fac.put(path = self.__url, data = dict(fcm_token = new_token_value))
+    res = self.__view(self.force_auth(req))
+    self.assertEqual(res.status_code, status.HTTP_200_OK)
+    self.assertEqual(mdl.User.objects.get(email = self.email).fcm_token, new_token_value)
 
 
 class SignInTest(BaseTestCase):
