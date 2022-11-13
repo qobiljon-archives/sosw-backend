@@ -15,8 +15,10 @@ from api import services as svc
 from api import selectors as slc
 from api import serializers as srz
 
-from os import environ
-from os.path import join
+from os import environ, mkdir
+from os.path import join, exists
+
+DATA_DUMP_DIR = environ['DATA_DUMP_DIR']
 
 # Firebase sdk
 if not firebase_admin._apps:
@@ -114,20 +116,25 @@ class InsertSelfReport(generics.CreateAPIView):
   permission_classes = [permissions.IsAuthenticated]
 
 
-class InsertBVP(generics.CreateAPIView):
+class InsertPPG(generics.CreateAPIView):
   serializer_class = 'InputSerializer'
   authentication_classes = [authentication.TokenAuthentication]
   permission_classes = [permissions.IsAuthenticated]
 
   def post(self, request, *args, **kwargs):
-    serializer = InsertBVP.InputSerializer(data = request.data)
+    serializer = InsertPPG.InputSerializer(data = request.data)
 
     if not serializer.is_valid():
       return response.Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
 
+    # prepare user's directory
+    dirpath = join(DATA_DUMP_DIR, request.user.email)
+    if not exists(dirpath): mkdir(dirpath)
+
+    # save the files
     files = serializer.validated_data['files']
     for file in files:
-      with open(join(environ['DATA_DUMP_DIR'], file.name), 'wb') as wb:
+      with open(join(dirpath, file.name), 'wb') as wb:
         wb.write(file.read())
 
     return response.Response(status = status.HTTP_200_OK)
@@ -138,6 +145,107 @@ class InsertBVP(generics.CreateAPIView):
       allow_empty = False,
       max_length = 10,
     )
+
+    def validate(self, attrs):
+      include = ['ppg']
+      exclude = ['acc', 'offbody']
+
+      for file in attrs['files']:
+        filename_lower = file.name.lower()
+        if all(x in filename_lower for x in include) and all(x not in filename_lower for x in exclude): continue
+        else: raise ValidationError(f'Filename must contain {include} and NOT contain {exclude}')
+
+      return attrs
+
+    class Meta:
+      fields = '__all__'
+
+
+class InsertAcc(generics.CreateAPIView):
+  serializer_class = 'InputSerializer'
+  authentication_classes = [authentication.TokenAuthentication]
+  permission_classes = [permissions.IsAuthenticated]
+
+  def post(self, request, *args, **kwargs):
+    serializer = InsertAcc.InputSerializer(data = request.data)
+
+    if not serializer.is_valid():
+      return response.Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
+
+    # prepare user's directory
+    dirpath = join(DATA_DUMP_DIR, request.user.email)
+    if not exists(dirpath): mkdir(dirpath)
+
+    # save the files
+    files = serializer.validated_data['files']
+    for file in files:
+      with open(join(dirpath, file.name), 'wb') as wb:
+        wb.write(file.read())
+
+    return response.Response(status = status.HTTP_200_OK)
+
+  class InputSerializer(serializers.Serializer):
+    files = serializers.ListField(
+      child = serializers.FileField(required = True, allow_empty_file = False),
+      allow_empty = False,
+      max_length = 10,
+    )
+
+    def validate(self, attrs):
+      include = ['acc']
+      exclude = ['ppg', 'offbody']
+
+      for file in attrs['files']:
+        filename_lower = file.name.lower()
+        if all(x in filename_lower for x in include) and all(x not in filename_lower for x in exclude): continue
+        else: raise ValidationError(f'Filename must contain {include} and NOT contain {exclude}')
+
+      return attrs
+
+    class Meta:
+      fields = '__all__'
+
+
+class InsertOffBody(generics.CreateAPIView):
+  serializer_class = 'InputSerializer'
+  authentication_classes = [authentication.TokenAuthentication]
+  permission_classes = [permissions.IsAuthenticated]
+
+  def post(self, request, *args, **kwargs):
+    serializer = InsertOffBody.InputSerializer(data = request.data)
+
+    if not serializer.is_valid():
+      return response.Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
+
+    # prepare user's directory
+    dirpath = join(DATA_DUMP_DIR, request.user.email)
+    if not exists(dirpath): mkdir(dirpath)
+
+    # save the files
+    files = serializer.validated_data['files']
+    for file in files:
+      with open(join(dirpath, file.name), 'wb') as wb:
+        wb.write(file.read())
+
+    return response.Response(status = status.HTTP_200_OK)
+
+  class InputSerializer(serializers.Serializer):
+    files = serializers.ListField(
+      child = serializers.FileField(required = True, allow_empty_file = False),
+      allow_empty = False,
+      max_length = 10,
+    )
+
+    def validate(self, attrs):
+      include = ['offbody']
+      exclude = ['ppg', 'acc']
+
+      for file in attrs['files']:
+        filename_lower = file.name.lower()
+        if all(x in filename_lower for x in include) and all(x not in filename_lower for x in exclude): continue
+        else: raise ValidationError(f'Filename must contain {include} and NOT contain {exclude}')
+
+      return attrs
 
     class Meta:
       fields = '__all__'
