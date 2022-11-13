@@ -10,8 +10,8 @@ from api.models import User, SelfReport
 @login_required
 def handle_index(request):
   if request.user.is_superuser:
-    users = []
-    for user in User.objects.all():
+    users = list()
+    for user in User.objects.filter(is_superuser = False):
       users.append(dict(
         id = user.id,
         name = user.full_name if user.full_name else 'N/A',
