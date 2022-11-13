@@ -28,24 +28,6 @@ if not firebase_admin._apps:
 
 
 class SignUp(generics.CreateAPIView):
-  http_method_names = ['post']
-
-  def post(self, request, *args, **kwargs):
-    serializer = SignUp.InputSerializer(data = request.data)
-    if not serializer.is_valid():
-      return response.Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
-
-    new_user = mdl.User.objects.create_user(
-      username = serializer.validated_data['email'],
-      email = serializer.validated_data['email'],
-      full_name = serializer.validated_data['full_name'],
-      gender = serializer.validated_data['gender'],
-      date_of_birth = serializer.validated_data['date_of_birth'],
-      password = serializer.validated_data['password'],
-    )
-
-    serializer = srz.UserSerializer(instance = new_user)
-    return response.Response(serializer.data, status = status.HTTP_201_CREATED)
 
   class InputSerializer(serializers.Serializer):
     email = serializers.EmailField(required = True, allow_null = False, allow_blank = False)
@@ -72,9 +54,39 @@ class SignUp(generics.CreateAPIView):
       fields = '__all__'
       extra_kwargs = {'password': {'write_only': True}}
 
+  http_method_names = ['post']
+  serializer_class = InputSerializer
+
+  def post(self, request, *args, **kwargs):
+    serializer = SignUp.InputSerializer(data = request.data)
+    if not serializer.is_valid():
+      return response.Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
+
+    new_user = mdl.User.objects.create_user(
+      username = serializer.validated_data['email'],
+      email = serializer.validated_data['email'],
+      full_name = serializer.validated_data['full_name'],
+      gender = serializer.validated_data['gender'],
+      date_of_birth = serializer.validated_data['date_of_birth'],
+      password = serializer.validated_data['password'],
+    )
+
+    serializer = srz.UserSerializer(instance = new_user)
+    return response.Response(serializer.data, status = status.HTTP_201_CREATED)
+
 
 class SignIn(generics.CreateAPIView):
+
+  class InputSerializer(serializers.Serializer):
+    email = serializers.EmailField(required = True, allow_null = False, allow_blank = False)
+    password = serializers.CharField(required = True, allow_null = False, min_length = 8)
+
+    class Meta:
+      fields = '__all__'
+      extra_kwargs = {'password': {'write_only': True}}
+
   http_method_names = ['post']
+  serializer_class = InputSerializer
 
   def post(self, request, *args, **kwargs):
     serializer = SignIn.InputSerializer(data = request.data)
@@ -91,19 +103,18 @@ class SignIn(generics.CreateAPIView):
     serializer = srz.ReadOnlyTokenSerializer(instance = Token.objects.get(user = user))
     return response.Response(serializer.data, status = status.HTTP_200_OK)
 
+
+class SetFcmToken(generics.UpdateAPIView):
+
   class InputSerializer(serializers.Serializer):
-    email = serializers.EmailField(required = True, allow_null = False, allow_blank = False)
-    password = serializers.CharField(required = True, allow_null = False, min_length = 8)
+    fcm_token = serializers.CharField(max_length = 128, required = True, allow_blank = False, allow_null = False)
 
     class Meta:
       fields = '__all__'
-      extra_kwargs = {'password': {'write_only': True}}
 
-
-class SetFcmToken(generics.UpdateAPIView):
   authentication_classes = [authentication.TokenAuthentication]
   permission_classes = [permissions.IsAuthenticated]
-  serializer_class = 'InputSerializer'
+  serializer_class = InputSerializer
 
   def update(self, request, *args, **kwargs):
     serializer = SetFcmToken.InputSerializer(data = request.data)
@@ -115,12 +126,6 @@ class SetFcmToken(generics.UpdateAPIView):
 
     return response.Response(status = status.HTTP_200_OK)
 
-  class InputSerializer(serializers.Serializer):
-    fcm_token = serializers.CharField(max_length = 128, required = True, allow_blank = False, allow_null = False)
-
-    class Meta:
-      fields = '__all__'
-
 
 class InsertSelfReport(generics.CreateAPIView):
   queryset = mdl.SelfReport.objects
@@ -130,27 +135,6 @@ class InsertSelfReport(generics.CreateAPIView):
 
 
 class InsertPPG(generics.CreateAPIView):
-  serializer_class = 'InputSerializer'
-  authentication_classes = [authentication.TokenAuthentication]
-  permission_classes = [permissions.IsAuthenticated]
-
-  def post(self, request, *args, **kwargs):
-    serializer = InsertPPG.InputSerializer(data = request.data)
-
-    if not serializer.is_valid():
-      return response.Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
-
-    # prepare user's directory
-    dirpath = join(DATA_DUMP_DIR, request.user.email)
-    if not exists(dirpath): mkdir(dirpath)
-
-    # save the files
-    files = serializer.validated_data['files']
-    for file in files:
-      with open(join(dirpath, file.name), 'wb') as wb:
-        wb.write(file.read())
-
-    return response.Response(status = status.HTTP_200_OK)
 
   class InputSerializer(serializers.Serializer):
     files = serializers.ListField(
@@ -173,14 +157,12 @@ class InsertPPG(generics.CreateAPIView):
     class Meta:
       fields = '__all__'
 
-
-class InsertAcc(generics.CreateAPIView):
-  serializer_class = 'InputSerializer'
   authentication_classes = [authentication.TokenAuthentication]
   permission_classes = [permissions.IsAuthenticated]
+  serializer_class = InputSerializer
 
   def post(self, request, *args, **kwargs):
-    serializer = InsertAcc.InputSerializer(data = request.data)
+    serializer = InsertPPG.InputSerializer(data = request.data)
 
     if not serializer.is_valid():
       return response.Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
@@ -196,6 +178,9 @@ class InsertAcc(generics.CreateAPIView):
         wb.write(file.read())
 
     return response.Response(status = status.HTTP_200_OK)
+
+
+class InsertAcc(generics.CreateAPIView):
 
   class InputSerializer(serializers.Serializer):
     files = serializers.ListField(
@@ -218,14 +203,12 @@ class InsertAcc(generics.CreateAPIView):
     class Meta:
       fields = '__all__'
 
-
-class InsertOffBody(generics.CreateAPIView):
-  serializer_class = 'InputSerializer'
+  serializer_class = InputSerializer
   authentication_classes = [authentication.TokenAuthentication]
   permission_classes = [permissions.IsAuthenticated]
 
   def post(self, request, *args, **kwargs):
-    serializer = InsertOffBody.InputSerializer(data = request.data)
+    serializer = InsertAcc.InputSerializer(data = request.data)
 
     if not serializer.is_valid():
       return response.Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
@@ -241,6 +224,9 @@ class InsertOffBody(generics.CreateAPIView):
         wb.write(file.read())
 
     return response.Response(status = status.HTTP_200_OK)
+
+
+class InsertOffBody(generics.CreateAPIView):
 
   class InputSerializer(serializers.Serializer):
     files = serializers.ListField(
@@ -263,9 +249,43 @@ class InsertOffBody(generics.CreateAPIView):
     class Meta:
       fields = '__all__'
 
+  serializer_class = InputSerializer
+  authentication_classes = [authentication.TokenAuthentication]
+  permission_classes = [permissions.IsAuthenticated]
+
+  def post(self, request, *args, **kwargs):
+    serializer = InsertOffBody.InputSerializer(data = request.data)
+
+    if not serializer.is_valid():
+      return response.Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
+
+    # prepare user's directory
+    dirpath = join(DATA_DUMP_DIR, request.user.email)
+    if not exists(dirpath): mkdir(dirpath)
+
+    # save the files
+    files = serializer.validated_data['files']
+    for file in files:
+      with open(join(dirpath, file.name), 'wb') as wb:
+        wb.write(file.read())
+
+    return response.Response(status = status.HTTP_200_OK)
+
 
 class SendEmaPush(generics.CreateAPIView):
-  serializer_class = 'InputSerializer'
+
+  class InputSerializer(serializers.Serializer):
+    pid = serializers.IntegerField(required = True)
+
+    def validate(self, attrs):
+      if not mdl.User.objects.filter(id = attrs['pid']).exists():
+        raise ValidationError('Invalid user id provided!')
+      return attrs
+
+    class Meta:
+      fields = '__all__'
+
+  serializer_class = InputSerializer
   authentication_classes = [authentication.TokenAuthentication]
   permission_classes = [permissions.IsAuthenticated, permissions.IsAdminUser]
 
@@ -293,14 +313,3 @@ class SendEmaPush(generics.CreateAPIView):
       return response.Response(status = status.HTTP_200_OK)
     except InvalidArgumentError:
       return response.Response(status = status.HTTP_400_BAD_REQUEST)
-
-  class InputSerializer(serializers.Serializer):
-    pid = serializers.IntegerField(required = True)
-
-    def validate(self, attrs):
-      if not mdl.User.objects.filter(id = attrs['pid']).exists():
-        raise ValidationError('Invalid user id provided!')
-      return attrs
-
-    class Meta:
-      fields = '__all__'
