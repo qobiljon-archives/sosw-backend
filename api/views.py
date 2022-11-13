@@ -38,7 +38,7 @@ class SignUp(generics.CreateAPIView):
     password = serializers.CharField(required = True, allow_null = False, min_length = 8)
 
     def validate(self, attrs):
-      if mdl.User.objects.filter(email = attrs['email']).exists():
+      if slc.user_exists(email = attrs['email']):
         raise ValidationError('Email already registered')
 
       if attrs['gender'] not in ['f', 'F', 'm', 'M']:
@@ -62,7 +62,7 @@ class SignUp(generics.CreateAPIView):
     if not serializer.is_valid():
       return response.Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
 
-    new_user = mdl.User.objects.create_user(
+    new_user = svc.create_user(
       username = serializer.validated_data['email'],
       email = serializer.validated_data['email'],
       full_name = serializer.validated_data['full_name'],
@@ -134,6 +134,13 @@ class InsertSelfReport(generics.CreateAPIView):
   permission_classes = [permissions.IsAuthenticated]
 
 
+class InsertOffBody(generics.CreateAPIView):
+  queryset = mdl.OffBody.objects
+  serializer_class = srz.OffBodySerializer
+  authentication_classes = [authentication.TokenAuthentication]
+  permission_classes = [permissions.IsAuthenticated]
+
+
 class InsertPPG(generics.CreateAPIView):
 
   class InputSerializer(serializers.Serializer):
@@ -145,7 +152,7 @@ class InsertPPG(generics.CreateAPIView):
 
     def validate(self, attrs):
       include = ['ppg']
-      exclude = ['acc', 'offbody']
+      exclude = ['acc']
 
       for file in attrs['files']:
         filename_lower = file.name.lower()
@@ -191,7 +198,7 @@ class InsertAcc(generics.CreateAPIView):
 
     def validate(self, attrs):
       include = ['acc']
-      exclude = ['ppg', 'offbody']
+      exclude = ['ppg']
 
       for file in attrs['files']:
         filename_lower = file.name.lower()
@@ -226,59 +233,13 @@ class InsertAcc(generics.CreateAPIView):
     return response.Response(status = status.HTTP_200_OK)
 
 
-class InsertOffBody(generics.CreateAPIView):
-
-  class InputSerializer(serializers.Serializer):
-    files = serializers.ListField(
-      child = serializers.FileField(required = True, allow_empty_file = False),
-      allow_empty = False,
-      max_length = 10,
-    )
-
-    def validate(self, attrs):
-      include = ['offbody']
-      exclude = ['ppg', 'acc']
-
-      for file in attrs['files']:
-        filename_lower = file.name.lower()
-        if all(x in filename_lower for x in include) and all(x not in filename_lower for x in exclude): continue
-        else: raise ValidationError(f'Filename must contain {include} and NOT contain {exclude}')
-
-      return attrs
-
-    class Meta:
-      fields = '__all__'
-
-  serializer_class = InputSerializer
-  authentication_classes = [authentication.TokenAuthentication]
-  permission_classes = [permissions.IsAuthenticated]
-
-  def post(self, request, *args, **kwargs):
-    serializer = InsertOffBody.InputSerializer(data = request.data)
-
-    if not serializer.is_valid():
-      return response.Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
-
-    # prepare user's directory
-    dirpath = join(DATA_DUMP_DIR, request.user.email)
-    if not exists(dirpath): mkdir(dirpath)
-
-    # save the files
-    files = serializer.validated_data['files']
-    for file in files:
-      with open(join(dirpath, file.name), 'wb') as wb:
-        wb.write(file.read())
-
-    return response.Response(status = status.HTTP_200_OK)
-
-
 class SendEmaPush(generics.CreateAPIView):
 
   class InputSerializer(serializers.Serializer):
     pid = serializers.IntegerField(required = True)
 
     def validate(self, attrs):
-      if not mdl.User.objects.filter(id = attrs['pid']).exists():
+      if not slc.user_exists(id = attrs['pid']):
         raise ValidationError('Invalid user id provided!')
       return attrs
 
@@ -306,7 +267,7 @@ class SendEmaPush(generics.CreateAPIView):
               channel_id = 'sosw.app.push',
             ),
           ),
-          token = mdl.User.objects.get(id = serializer.validated_data['pid']).fcm_token,
+          token = slc.get_fcm_token(id = serializer.validated_data['pid']).fcm_token,
         ),
         app = firebase_app,
       )

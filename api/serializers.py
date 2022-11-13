@@ -30,7 +30,7 @@ class ReadOnlyTokenSerializer(serializers.ModelSerializer):
 class SelfReportSerializer(serializers.ModelSerializer):
   id = serializers.IntegerField(read_only = True)
   user = UserSerializer(read_only = True, allow_null = False)
-  timestamp = serializers.DateTimeField(allow_null = False, required = True)
+  timestamp = serializers.IntegerField(allow_null = False, required = True)
   pss_control = serializers.IntegerField(allow_null = False, required = True)
   pss_confident = serializers.IntegerField(allow_null = False, required = True)
   pss_yourway = serializers.IntegerField(allow_null = False, required = True)
@@ -41,8 +41,11 @@ class SelfReportSerializer(serializers.ModelSerializer):
   activity = serializers.CharField(max_length = 32, allow_null = False, required = True)
 
   def validate(self, attrs):
-    if attrs['timestamp'] > dt.now():
-      raise ValidationError('Self-report timestamp cannot be in future!')
+    before_start = dt(year = 2022, month = 11, day = 14)
+    now = dt.now()
+    ts = dt.fromtimestamp(attrs['timestamp']/1000)
+    if ts < before_start or now < ts:
+      raise ValidationError('Self-report timestamp cannot be before data collection start or in future!')
 
     acceptable_values = dict(
       pss_control = {0, 1, 2, 3, 4},   # 0-4 likert scale
@@ -73,3 +76,26 @@ class SelfReportSerializer(serializers.ModelSerializer):
       'id', 'user', 'timestamp', 'pss_control', 'pss_confident', 'pss_yourway', 'pss_difficulties', 'stresslvl',
       'social_settings', 'location', 'activity'
     ]
+
+
+class OffBodySerializer(serializers.ModelSerializer):
+  id = serializers.IntegerField(read_only = True)
+  user = UserSerializer(read_only = True, allow_null = False)
+  timestamp = serializers.IntegerField(allow_null = False, required = True)
+  is_off_body = serializers.BooleanField(allow_null = False)
+
+  def validate(self, attrs):
+    before_start = dt(year = 2022, month = 11, day = 14)
+    now = dt.now()
+    ts = dt.fromtimestamp(attrs['timestamp']/1000)
+    if ts < before_start or now < ts:
+      raise ValidationError('Self-report timestamp cannot be before data collection start or in future!')
+
+    return attrs
+
+  def create(self, validated_data):
+    return svc.create_off_body_data(user = self.context['request'].user, **validated_data)
+
+  class Meta:
+    model = mdl.SelfReport
+    fields = ['id', 'user', 'timestamp', 'is_off_body']

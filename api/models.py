@@ -15,7 +15,7 @@ class User(AbstractUser):
 class SelfReport(mdl.Model):
   id = mdl.AutoField(primary_key = True)
   user = mdl.ForeignKey(to = 'User', on_delete = mdl.CASCADE, db_index = True)
-  timestamp = mdl.DateTimeField(db_index = True)
+  timestamp = mdl.BigIntegerField(db_index = True)
   pss_control = mdl.IntegerField()
   pss_confident = mdl.IntegerField()
   pss_yourway = mdl.IntegerField()
@@ -29,5 +29,5 @@ class SelfReport(mdl.Model):
 class OffBody(mdl.Model):
   id = mdl.AutoField(primary_key = True)
   user = mdl.ForeignKey(to = 'User', on_delete = mdl.CASCADE, db_index = True)
-  timestamp = mdl.DateTimeField(db_index = True)
+  timestamp = mdl.BigIntegerField(db_index = True)
   is_off_body = mdl.BooleanField()
