@@ -15,6 +15,9 @@ ENV LDFLAGS '-L/usr/local/opt/libpq/lib'
 ENV CPPFLAGS '-I/usr/local/opt/libpq/include'
 ENV PKG_CONFIG_PATH '/usr/local/opt/libpq/lib/pkgconfig'
 
+# telnet to check for postgres db
+RUN apt-get install -y telnet
+
 # pipenv
 RUN pip install --upgrade pip
 RUN pip install pipenv
@@ -35,10 +38,20 @@ USER sosw
 
 # install gunicorn and the app
 RUN pip install -U gunicorn
-COPY dashboard dashboard
-COPY api api
-COPY static static
-COPY manage.py gunicorn.ini ema_notifier.py ./
+COPY . .
+
+ENV SERVERNAMES $SERVERNAMES
+ENV DB_HOST $DB_HOST
+ENV DATA_DUMP_DIR $DATA_DUMP_DIR
+ENV DB_HOST $DB_HOST
+ENV DB_PORT $DB_PORT
+ENV DB_USER $DB_USER
+ENV DB_PWD $DB_PWD
+ENV DB_NAME $DB_NAME
+
+USER root
+RUN python manage.py collectstatic --noinput
+USER sosw
 
 # open app port and run the app
 EXPOSE 8000

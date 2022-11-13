@@ -9,6 +9,8 @@ class User(AbstractUser):
   date_of_birth = mdl.DateField()
   fcm_token = mdl.CharField(max_length = 128)
 
+  REQUIRED_FIELDS = ['full_name', 'gender', 'date_of_birth', 'fcm_token']
+
 
 class SelfReport(mdl.Model):
   id = mdl.AutoField(primary_key = True)

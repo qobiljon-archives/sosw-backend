@@ -7,6 +7,7 @@ from rest_framework import response, status
 from rest_framework.exceptions import ValidationError
 from rest_framework.authtoken.models import Token
 
+from firebase_admin.exceptions import InvalidArgumentError
 from firebase_admin import messaging
 import firebase_admin
 
@@ -24,15 +25,6 @@ DATA_DUMP_DIR = environ['DATA_DUMP_DIR']
 if not firebase_admin._apps:
   cred = firebase_admin.credentials.Certificate('fcm_secret.json')
   firebase_app = firebase_admin.initialize_app(credential = cred)
-"""
-messaging.send(message = messaging.Message(android = messaging.AndroidConfig(priority = 'high',
-				notification = messaging.AndroidNotification(title = "Stress report time!",
-				body = "Please log your current situation and stress levels.",
-				channel_id = 'sosw.app.push')),
-				token = User.objects.get(id = pid).fcm_token),
-				app = firebase_app
-			)
-"""
 
 
 class SignUp(generics.CreateAPIView):
@@ -245,6 +237,48 @@ class InsertOffBody(generics.CreateAPIView):
         if all(x in filename_lower for x in include) and all(x not in filename_lower for x in exclude): continue
         else: raise ValidationError(f'Filename must contain {include} and NOT contain {exclude}')
 
+      return attrs
+
+    class Meta:
+      fields = '__all__'
+
+
+class SendEmaPush(generics.CreateAPIView):
+  serializer_class = 'InputSerializer'
+  authentication_classes = [authentication.TokenAuthentication]
+  permission_classes = [permissions.IsAuthenticated, permissions.IsAdminUser]
+
+  def post(self, request, *args, **kwargs):
+    serializer = SendEmaPush.InputSerializer(data = request.data)
+
+    if not serializer.is_valid():
+      return response.Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
+
+    try:
+      messaging.send(
+        message = messaging.Message(
+          android = messaging.AndroidConfig(
+            priority = 'high',
+            notification = messaging.AndroidNotification(
+              title = "Stress report time!",
+              body = "Please log your current situation and stress levels.",
+              channel_id = 'sosw.app.push',
+            ),
+          ),
+          token = mdl.User.objects.get(id = serializer.validated_data['pid']).fcm_token,
+        ),
+        app = firebase_app,
+      )
+      return response.Response(status = status.HTTP_200_OK)
+    except InvalidArgumentError:
+      return response.Response(status = status.HTTP_400_BAD_REQUEST)
+
+  class InputSerializer(serializers.Serializer):
+    pid = serializers.IntegerField(required = True)
+
+    def validate(self, attrs):
+      if not mdl.User.objects.filter(id = attrs['pid']).exists():
+        raise ValidationError('Invalid user id provided!')
       return attrs
 
     class Meta:

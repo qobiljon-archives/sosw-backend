@@ -117,11 +117,13 @@
 
     <script>
         function sendEmaRequest(pid, pname) {
-            $.post('{% url 'send_ema_push_api' %}', {pid: pid}, function (res) {
-                if (res.success)
-                    alert(`EMA delivered to ${pname} (pid=${pid}) !`);
-                else
-                    alert(`Failed to deliver EMA to ${pname} (pid=${pid}) !`);
+            $.ajax({
+                url: '{% url 'sendEMAPushApi' %}',
+                type: "POST",
+                headers: { Authorization: 'Token {{ token }}' },
+                data: {pid: pid},
+                error: err => alert(`Failed to deliver EMA to ${pname} (pid=${pid}) !`),
+                success: data => alert(`EMA delivered to ${pname} (pid=${pid}) !`),
             });
         }
 
