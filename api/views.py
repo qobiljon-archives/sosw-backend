@@ -63,8 +63,9 @@ class Register(generics.CreateAPIView):
       if mdl.User.objects.filter(email = attrs['email']).exists():
         raise ValidationError('Email already registered')
 
-      if attrs['gender'] not in ['F', 'M']:
+      if attrs['gender'] not in ['f', 'F', 'm', 'M']:
         raise ValidationError('Gender can be "F" or "M" only')
+      attrs['gender'] = attrs['gender'].upper()
 
       if attrs['date_of_birth'] > dt.today().date():
         raise ValidationError('Date of birth cannot be in future!')

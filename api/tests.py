@@ -21,7 +21,7 @@ class BaseTestCase(TestCase):
 
   def get_token(self) -> tuple[mdl.User, Token]:
     query_set = mdl.User.objects.filter(username = self.username)
-    user = query_set[0] if query_set.exists() else mdl.User.objects.create(
+    user = query_set[0] if query_set.exists() else mdl.User.objects.create_user(
       username = self.username,
       email = self.username,
       full_name = '홍길동',
@@ -33,7 +33,7 @@ class BaseTestCase(TestCase):
     return user, Token.objects.get(user = user)
 
   def force_auth(self, request):
-    force_authenticate(request, user = self.get_token().user)
+    force_authenticate(request, user = self.get_token()[1].user)
     return request
 
 
@@ -69,28 +69,28 @@ class AuthTest(BaseTestCase):
 
     user, token = self.get_token()
 
-    # # empty req
-    # res = view(self.fac.post(url))
-    # self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+    # empty req
+    res = view(self.fac.post(url))
+    self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 
-    # # missing email
-    # res = view(self.fac.post(url, dict(password = user.password)))
-    # self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+    # missing email
+    res = view(self.fac.post(url, dict(password = user.password)))
+    self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 
-    # # missing password
-    # res = view(self.fac.post(url, dict(email = user.email)))
-    # self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+    # missing password
+    res = view(self.fac.post(url, dict(email = user.email)))
+    self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 
-    # # invalid email
-    # res = view(self.fac.post(url, dict(email = f'a{user.email}', password = user.password)))
-    # self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+    # invalid email
+    res = view(self.fac.post(url, dict(email = f'a{user.email}', password = user.password)))
+    self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 
-    # # invalid password
-    # res = view(self.fac.post(url, dict(email = user.email, password = f'p{user.password}')))
-    # self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+    # invalid password
+    res = view(self.fac.post(url, dict(email = user.email, password = f'p{user.password}')))
+    self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 
     # valid credentials
-    res = view(self.fac.post(url, dict(username = user.username, email = user.email, password = user.password)))
+    res = view(self.fac.post(url, dict(email = self.username, password = self.password)))
     self.assertEqual(res.status_code, status.HTTP_200_OK)
     self.assertIn('token', res.data)
     self.assertEqual(res.data['token'], token.key)
@@ -103,7 +103,7 @@ class SelfReportTest(BaseTestCase):
     view = api.InsertSelfReport.as_view()
     user, token = self.get_token()
 
-    # check token
+    # check tokenss
     req = self.fac.post(
       path = url,
       data = dict(
@@ -117,5 +117,7 @@ class SelfReportTest(BaseTestCase):
         location = 'home',
         activity = 'other',
       ),
-      HTT_AUTHORIZATION = f'Token {token.key}',
+      HTTP_AUTHORIZATION = f'Token {token.key}',
     )
+    res = view(req)
+    self.assertEqual(res.status_code, status.HTTP_201_CREATED)

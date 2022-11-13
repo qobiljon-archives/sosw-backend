@@ -20,8 +20,8 @@ class UserSerializer(serializers.ModelSerializer):
 
 class SelfReportSerializer(serializers.ModelSerializer):
   id = serializers.IntegerField(read_only = True)
-  user = UserSerializer(allow_null = False, required = True)
-  timestamp = serializers.DateField(allow_null = False, required = True)
+  user = UserSerializer(read_only = True, allow_null = False)
+  timestamp = serializers.DateTimeField(allow_null = False, required = True)
   pss_control = serializers.IntegerField(allow_null = False, required = True)
   pss_confident = serializers.IntegerField(allow_null = False, required = True)
   pss_yourway = serializers.IntegerField(allow_null = False, required = True)
@@ -49,7 +49,7 @@ class SelfReportSerializer(serializers.ModelSerializer):
       },
     )
 
-    for k, v in acceptable_values:
+    for k, v in acceptable_values.items():
       if attrs[k] not in v:
         raise ValidationError(f'"{k}" can only be one of {v}')
 
