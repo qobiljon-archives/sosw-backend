@@ -1,6 +1,7 @@
 from rest_framework.exceptions import ValidationError
 from rest_framework import serializers
 from django.utils.timezone import datetime as dt
+from rest_framework.authtoken.models import Token
 
 from api import models as mdl
 from api import services as svc
@@ -16,6 +17,14 @@ class UserSerializer(serializers.ModelSerializer):
   class Meta:
     model = mdl.User
     fields = ['email', 'full_name', 'gender', 'date_of_birth', 'fcm_token']
+
+
+class ReadOnlyTokenSerializer(serializers.ModelSerializer):
+  token = serializers.CharField(read_only = True, source = 'key')
+
+  class Meta:
+    model = Token
+    fields = ['token']
 
 
 class SelfReportSerializer(serializers.ModelSerializer):

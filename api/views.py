@@ -15,6 +15,9 @@ from api import services as svc
 from api import selectors as slc
 from api import serializers as srz
 
+from os import environ
+from os.path import join
+
 # Firebase sdk
 if not firebase_admin._apps:
   cred = firebase_admin.credentials.Certificate('fcm_secret.json')
@@ -30,12 +33,11 @@ messaging.send(message = messaging.Message(android = messaging.AndroidConfig(pri
 """
 
 
-class Register(generics.CreateAPIView):
-  queryset = mdl.User.objects
+class SignUp(generics.CreateAPIView):
   serializer_class = 'InputSerializer'
 
   def post(self, request, *args, **kwargs):
-    serializer = Register.InputSerializer(data = request.data)
+    serializer = SignUp.InputSerializer(data = request.data)
     if not serializer.is_valid():
       return response.Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
 
@@ -73,7 +75,7 @@ class Register(generics.CreateAPIView):
       return attrs
 
     class Meta:
-      fields = ['email', 'full_name', 'gender', 'date_of_birth', 'password']
+      fields = '__all__'
       extra_kwargs = {'password': {'write_only': True}}
 
 
@@ -90,19 +92,18 @@ class SignIn(generics.CreateAPIView):
       username = serializer.validated_data['email'],
       password = serializer.validated_data['password'],
     )
-
     if not user:
       return response.Response(dict(credentials = 'Incorrect credentials'), status = status.HTTP_400_BAD_REQUEST)
-    token = Token.objects.get(user = user)
 
-    return response.Response({'token': token.key}, status = status.HTTP_200_OK)
+    serializer = srz.ReadOnlyTokenSerializer(instance = Token.objects.get(user = user))
+    return response.Response(serializer.data, status = status.HTTP_200_OK)
 
   class InputSerializer(serializers.Serializer):
     email = serializers.EmailField(required = True, allow_null = False, allow_blank = False)
     password = serializers.CharField(required = True, allow_null = False, min_length = 8)
 
     class Meta:
-      fields = ['email', 'password']
+      fields = '__all__'
       extra_kwargs = {'password': {'write_only': True}}
 
 
@@ -111,3 +112,32 @@ class InsertSelfReport(generics.CreateAPIView):
   serializer_class = srz.SelfReportSerializer
   authentication_classes = [authentication.TokenAuthentication]
   permission_classes = [permissions.IsAuthenticated]
+
+
+class InsertBVP(generics.CreateAPIView):
+  serializer_class = 'InputSerializer'
+  authentication_classes = [authentication.TokenAuthentication]
+  permission_classes = [permissions.IsAuthenticated]
+
+  def post(self, request, *args, **kwargs):
+    serializer = InsertBVP.InputSerializer(data = request.data)
+
+    if not serializer.is_valid():
+      return response.Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
+
+    files = serializer.validated_data['files']
+    for file in files:
+      with open(join(environ['DATA_DUMP_DIR'], file.name), 'wb') as wb:
+        wb.write(file.read())
+
+    return response.Response(status = status.HTTP_200_OK)
+
+  class InputSerializer(serializers.Serializer):
+    files = serializers.ListField(
+      child = serializers.FileField(required = True, allow_empty_file = False),
+      allow_empty = False,
+      max_length = 10,
+    )
+
+    class Meta:
+      fields = '__all__'
