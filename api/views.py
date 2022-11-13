@@ -267,7 +267,7 @@ class SendEmaPush(generics.CreateAPIView):
               channel_id = 'sosw.app.push',
             ),
           ),
-          token = slc.get_fcm_token(id = serializer.validated_data['pid']).fcm_token,
+          token = slc.get_fcm_token(id = serializer.validated_data['pid']),
         ),
         app = firebase_app,
       )

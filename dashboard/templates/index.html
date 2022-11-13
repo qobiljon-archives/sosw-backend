@@ -13,14 +13,14 @@
             <th class="amount_column">EMA #</th>
             <th class="actions_column">Actions</th>
         </tr>
-        {% for participant in participants %}
+        {% for user in users %}
             <tr>
-                <td class="id_column">{{ participant.id }}</td>
-                <td class="name_column">{{ participant.name }}</td>
-                <td class="amount_column">{{ participant.ema_amount }}</td>
+                <td class="id_column">{{ user.id }}</td>
+                <td class="name_column">{{ user.name }}</td>
+                <td class="amount_column">{{ user.ema_amount }}</td>
                 <td class="actions_column">
-                    {% if participant.fcm_token %}
-                        <a title="Send EMA" onclick="sendEmaRequest({{ participant.id }}, '{{ participant.name }}');">
+                    {% if user.fcm_token %}
+                        <a title="Send EMA" onclick="sendEmaRequest({{ user.id }}, '{{ user.name }}');">
                             <img class="action_button_green" src="{% static 'send.png' %}" alt="send">
                         </a>
                     {% else %}N/A{% endif %}
