@@ -18,12 +18,13 @@ from rest_framework import status
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APIRequestFactory, force_authenticate
 
+from os import listdir, remove
+from os.path import exists
+import time
+
 from api import models as mdl
 from api import services as svc
 from api import views as api
-
-from os import listdir, remove
-from os.path import exists
 
 
 class BaseTestCase(TestCase):
@@ -353,6 +354,11 @@ class SelfReportTest(BaseTestCase):
     )
     res = self.__view(self.force_auth(req))
     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
+  def test_get_self_reports(self):
+    req = self.fac.get(path = get_url('getSelfReportsApi'))
+    res = api.GetSelfReports.as_view()(self.force_auth(req))
+    self.assertEqual(res.status_code, status.HTTP_200_OK)
 
 
 class OffBodyTest(BaseTestCase):

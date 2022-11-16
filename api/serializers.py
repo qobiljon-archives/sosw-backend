@@ -3,6 +3,8 @@ from rest_framework import serializers
 from django.utils.timezone import datetime as dt
 from rest_framework.authtoken.models import Token
 
+import time
+
 from api import models as mdl
 from api import services as svc
 
@@ -72,10 +74,7 @@ class SelfReportSerializer(serializers.ModelSerializer):
 
   class Meta:
     model = mdl.SelfReport
-    fields = [
-      'id', 'user', 'timestamp', 'pss_control', 'pss_confident', 'pss_yourway', 'pss_difficulties', 'stresslvl',
-      'social_settings', 'location', 'activity'
-    ]
+    fields = '__all__'
 
 
 class OffBodySerializer(serializers.ModelSerializer):

@@ -16,6 +16,7 @@ from typing import List
 
 from api import models as mdl
 from api.views import firebase_app
+from api import services as svc
 
 NOTIFICATIONS_PER_DAY = 12
 NOTIFICATION_HOUR_RANGE = {'from': 9, 'till': 21}
@@ -58,6 +59,7 @@ def send_push_notification(user: mdl.User) -> bool:
       ),
       app = firebase_app,
     )
+    svc.create_self_report_log(timestamp = int(time.time()*1000), user = user, voluntary = False)
     return True
   except messaging.UnregisteredError:
     user.fcm_token = None

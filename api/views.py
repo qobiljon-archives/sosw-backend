@@ -134,6 +134,15 @@ class InsertSelfReport(generics.CreateAPIView):
   permission_classes = [permissions.IsAuthenticated]
 
 
+class GetSelfReports(generics.ListAPIView):
+  serializer_class = srz.SelfReportSerializer
+  authentication_classes = [authentication.TokenAuthentication]
+  permission_classes = [permissions.IsAuthenticated]
+
+  def get_queryset(self):
+    return slc.get_self_reports(user = self.request.user)
+
+
 class InsertOffBody(generics.CreateAPIView):
   queryset = mdl.OffBody.objects
   serializer_class = srz.OffBodySerializer

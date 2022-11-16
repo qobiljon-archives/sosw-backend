@@ -8,6 +8,7 @@ urlpatterns = [
 
    # model views
   path('submit_self_report', views.InsertSelfReport.as_view(), name = 'submitSelfReportApi'),
+  path('get_self_reports', views.GetSelfReports.as_view(), name = 'getSelfReportsApi'),
   path('submit_off_body', views.InsertOffBody.as_view(), name = 'submitOffBodyApi'),
 
    # custom views
