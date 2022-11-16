@@ -172,7 +172,7 @@ class InsertPPG(generics.CreateAPIView):
 
     # save the files
     file = serializer.validated_data['file']
-    with open(join(dirpath, file.name), 'wb') as wb:
+    with open(join(dirpath, 'ppg.csv'), 'ab+') as wb:
       wb.write(file.read())
 
     return response.Response(status = status.HTTP_200_OK)
@@ -209,7 +209,7 @@ class InsertAcc(generics.CreateAPIView):
 
     # save the files
     file = serializer.validated_data['file']
-    with open(join(dirpath, file.name), 'wb') as wb:
+    with open(join(dirpath, 'acc.csv'), 'ab+') as wb:
       wb.write(file.read())
 
     return response.Response(status = status.HTTP_200_OK)

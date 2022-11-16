@@ -2,6 +2,7 @@ from os import environ
 from os.path import join
 from django import setup
 import dotenv
+import shutil
 
 environ['DJANGO_SETTINGS_MODULE'] = 'dashboard.settings'
 dotenv.load_dotenv()
@@ -392,28 +393,11 @@ class PPGTest(BaseTestCase):
     self.__view = api.InsertPPG.as_view()
     super().__init__(*args, **kwargs)
 
-  def __validate_files(self, test_files):
-    dirpath = join(self.DATA_DUMP_DIR, self.email)
-    self.assertTrue(exists(dirpath))
-
-    files = set(listdir(path = dirpath))
-    confirmations = list()
-    for testName, testContent in test_files.items():
-      self.assertIn(testName, files)
-      filepath = join(dirpath, testName)
-      if exists(filepath):
-        with open(filepath, 'rb') as rb:
-          confirmations.append(rb.read() == testContent)
-        remove(filepath)
-      else:
-        confirmations.append(False)
-    self.assertTrue(all(confirmations))
-
   def test_insert_valid(self):
     test_files = {
-      'ppg1.csv': b'1,2,3,4,5,6',
-      'ppg2.csv': b'7,8,9,10,11',
-      'ppg3.csv': b'12,13,14,15',
+      'ppg1.csv': b'1,2,3,4,5,6\n',
+      'ppg2.csv': b'7,8,9,10,11\n',
+      'ppg3.csv': b'12,13,14,15\n',
     }
 
     for name, content in test_files.items():
@@ -424,7 +408,14 @@ class PPGTest(BaseTestCase):
       res = self.__view(self.force_auth(request = req))
       self.assertEqual(res.status_code, status.HTTP_200_OK)
 
-    self.__validate_files(test_files = test_files)
+    dirpath = join(self.DATA_DUMP_DIR, self.email)
+    self.assertTrue(exists(dirpath))
+    expected = b''.join(x for x in test_files.values())
+    filepath = join(dirpath, 'ppg.csv')
+    self.assertTrue(exists(filepath))
+    with open(filepath, 'rb') as rb:
+      self.assertEqual(expected, rb.read())
+    shutil.rmtree(dirpath)
 
   def test_insert_bad_name(self):
     test_files = {
@@ -510,7 +501,14 @@ class AccTest(BaseTestCase):
       res = self.__view(self.force_auth(request = req))
       self.assertEqual(res.status_code, status.HTTP_200_OK)
 
-    self.__validate_files(test_files = test_files)
+    dirpath = join(self.DATA_DUMP_DIR, self.email)
+    self.assertTrue(exists(dirpath))
+    expected = b''.join(x for x in test_files.values())
+    filepath = join(dirpath, 'acc.csv')
+    self.assertTrue(exists(filepath))
+    with open(filepath, 'rb') as rb:
+      self.assertEqual(expected, rb.read())
+    shutil.rmtree(dirpath)
 
   def test_insert_bad_name(self):
     test_files = {
