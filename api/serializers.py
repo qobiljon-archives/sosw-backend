@@ -18,7 +18,7 @@ class UserSerializer(serializers.ModelSerializer):
 
   class Meta:
     model = mdl.User
-    fields = ['email', 'full_name', 'gender', 'date_of_birth', 'fcm_token']
+    fields = '__all__'
 
 
 class ReadOnlyTokenSerializer(serializers.ModelSerializer):
@@ -75,6 +75,18 @@ class SelfReportSerializer(serializers.ModelSerializer):
   class Meta:
     model = mdl.SelfReport
     fields = '__all__'
+
+
+class ReadOnlySelfReportSerializer(serializers.ModelSerializer):
+  timestamp = serializers.IntegerField(read_only = True)
+  pss_control = serializers.IntegerField(read_only = True)
+  pss_confident = serializers.IntegerField(read_only = True)
+  pss_yourway = serializers.IntegerField(read_only = True)
+  pss_difficulties = serializers.IntegerField(read_only = True)
+  stresslvl = serializers.IntegerField(read_only = True)
+  social_settings = serializers.CharField(read_only = True)
+  location = serializers.CharField(read_only = True)
+  activity = serializers.CharField(read_only = True)
 
 
 class OffBodySerializer(serializers.ModelSerializer):

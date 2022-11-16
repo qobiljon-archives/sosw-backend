@@ -135,7 +135,7 @@ class InsertSelfReport(generics.CreateAPIView):
 
 
 class GetSelfReports(generics.ListAPIView):
-  serializer_class = srz.SelfReportSerializer
+  serializer_class = srz.ReadOnlySelfReportSerializer
   authentication_classes = [authentication.TokenAuthentication]
   permission_classes = [permissions.IsAuthenticated]
 
