@@ -18,7 +18,7 @@ from api import models as mdl
 from api.views import firebase_app
 
 NOTIFICATIONS_PER_DAY = 12
-NOTIFICATION_HOUR_RANGE = {'from': 9, 'till': 2}
+NOTIFICATION_HOUR_RANGE = {'from': 9, 'till': 21}
 NOTIFICATION_DELAY_RANGE = {'min': 40, 'max': 80}
 
 # Firebase sdk
