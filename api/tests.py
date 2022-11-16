@@ -415,12 +415,15 @@ class PPGTest(BaseTestCase):
       'ppg2.csv': b'7,8,9,10,11',
       'ppg3.csv': b'12,13,14,15',
     }
-    req = self.fac.post(
-      path = self.__url,
-      data = dict(files = [SimpleUploadedFile(name = name, content = content) for name, content in test_files.items()]),
-    )
-    res = self.__view(self.force_auth(request = req))
-    self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+    for name, content in test_files.items():
+      req = self.fac.post(
+        path = self.__url,
+        data = dict(file = SimpleUploadedFile(name = name, content = content)),
+      )
+      res = self.__view(self.force_auth(request = req))
+      self.assertEqual(res.status_code, status.HTTP_200_OK)
+
     self.__validate_files(test_files = test_files)
 
   def test_insert_bad_name(self):
@@ -498,12 +501,15 @@ class AccTest(BaseTestCase):
       'acc2.csv': b'7,8,9,10,11',
       'acc3.csv': b'12,13,14,15',
     }
-    req = self.fac.post(
-      path = self.__url,
-      data = dict(files = [SimpleUploadedFile(name = name, content = content) for name, content in test_files.items()]),
-    )
-    res = self.__view(self.force_auth(request = req))
-    self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+    for name, content in test_files.items():
+      req = self.fac.post(
+        path = self.__url,
+        data = dict(file = SimpleUploadedFile(name = name, content = content)),
+      )
+      res = self.__view(self.force_auth(request = req))
+      self.assertEqual(res.status_code, status.HTTP_200_OK)
+
     self.__validate_files(test_files = test_files)
 
   def test_insert_bad_name(self):

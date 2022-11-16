@@ -7,7 +7,15 @@ echo 'Test goes first! running tests...'
 if pipenv run python manage.py test; then
   echo 'Tests passed =)'
   echo 'Running the server...'
-  exec pipenv run gunicorn dashboard.wsgi -c gunicorn.ini
+  
+  # gunicorn version
+  # exec pipenv run gunicorn dashboard.wsgi -c gunicorn.ini
+
+  # docker version
+  set -a
+  source .env
+  set +a
+  exec sudo docker-compose up -d --build
 else
   echo 'Tests failed =('
 fi

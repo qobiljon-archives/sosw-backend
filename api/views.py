@@ -144,20 +144,12 @@ class InsertOffBody(generics.CreateAPIView):
 class InsertPPG(generics.CreateAPIView):
 
   class InputSerializer(serializers.Serializer):
-    files = serializers.ListField(
-      child = serializers.FileField(required = True, allow_empty_file = False),
-      allow_empty = False,
-      max_length = 10,
-    )
+    file = serializers.FileField(required = True, allow_empty_file = False)
 
     def validate(self, attrs):
-      include = ['ppg']
-      exclude = ['acc']
-
-      for file in attrs['files']:
-        filename_lower = file.name.lower()
-        if all(x in filename_lower for x in include) and all(x not in filename_lower for x in exclude): continue
-        else: raise ValidationError(f'Filename must contain {include} and NOT contain {exclude}')
+      filename_lower = attrs['file'].name.lower()
+      if 'ppg' not in filename_lower or 'acc' in filename_lower:
+        raise ValidationError(f'Filename must contain "ppg" and NOT contain "acc"')
 
       return attrs
 
@@ -179,10 +171,9 @@ class InsertPPG(generics.CreateAPIView):
     if not exists(dirpath): mkdir(dirpath)
 
     # save the files
-    files = serializer.validated_data['files']
-    for file in files:
-      with open(join(dirpath, file.name), 'wb') as wb:
-        wb.write(file.read())
+    file = serializer.validated_data['file']
+    with open(join(dirpath, file.name), 'wb') as wb:
+      wb.write(file.read())
 
     return response.Response(status = status.HTTP_200_OK)
 
@@ -190,20 +181,12 @@ class InsertPPG(generics.CreateAPIView):
 class InsertAcc(generics.CreateAPIView):
 
   class InputSerializer(serializers.Serializer):
-    files = serializers.ListField(
-      child = serializers.FileField(required = True, allow_empty_file = False),
-      allow_empty = False,
-      max_length = 10,
-    )
+    file = serializers.FileField(required = True, allow_empty_file = False)
 
     def validate(self, attrs):
-      include = ['acc']
-      exclude = ['ppg']
-
-      for file in attrs['files']:
-        filename_lower = file.name.lower()
-        if all(x in filename_lower for x in include) and all(x not in filename_lower for x in exclude): continue
-        else: raise ValidationError(f'Filename must contain {include} and NOT contain {exclude}')
+      filename_lower = attrs['file'].name.lower()
+      if 'acc' not in filename_lower or 'ppg' in filename_lower:
+        raise ValidationError(f'Filename must contain "acc" and NOT contain "ppg')
 
       return attrs
 
@@ -225,10 +208,9 @@ class InsertAcc(generics.CreateAPIView):
     if not exists(dirpath): mkdir(dirpath)
 
     # save the files
-    files = serializer.validated_data['files']
-    for file in files:
-      with open(join(dirpath, file.name), 'wb') as wb:
-        wb.write(file.read())
+    file = serializer.validated_data['file']
+    with open(join(dirpath, file.name), 'wb') as wb:
+      wb.write(file.read())
 
     return response.Response(status = status.HTTP_200_OK)
 
