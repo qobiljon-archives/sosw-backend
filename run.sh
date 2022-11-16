@@ -15,7 +15,7 @@ if pipenv run python manage.py test; then
   set -a
   source .env
   set +a
-  exec sudo docker-compose up -d --build
+  exec sudo docker compose up -d --build
 else
   echo 'Tests failed =('
 fi
