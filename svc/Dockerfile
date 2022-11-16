@@ -32,7 +32,6 @@ WORKDIR /home/sosw
 USER sosw
 
 # install gunicorn and the app
-RUN pip install -U gunicorn
 COPY . .
 
 ENV SERVERNAMES $SERVERNAMES
@@ -43,11 +42,6 @@ ENV DB_USER $DB_USER
 ENV DB_PWD $DB_PWD
 ENV DB_NAME $DB_NAME
 
-USER root
-RUN python manage.py collectstatic --noinput
-USER sosw
-
 # open app port and run the app
-EXPOSE 8000
-ENTRYPOINT [ "gunicorn" ]
-CMD ["dashboard.wsgi", "-c", "gunicorn.ini"]
+ENTRYPOINT [ "python" ]
+CMD ["-m", "svc.push_ema_svc"]
