@@ -88,6 +88,13 @@ class ReadOnlySelfReportSerializer(serializers.ModelSerializer):
   location = serializers.CharField(read_only = True)
   activity = serializers.CharField(read_only = True)
 
+  class Meta:
+    model = mdl.SelfReport
+    fields = [
+      'timestamp', 'pss_control', 'pss_confident', 'pss_yourway', 'pss_difficulties', 'stresslvl', 'social_settings',
+      'location', 'activity'
+    ]
+
 
 class OffBodySerializer(serializers.ModelSerializer):
   id = serializers.IntegerField(read_only = True)

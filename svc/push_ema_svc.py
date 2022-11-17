@@ -59,7 +59,6 @@ def send_push_notification(user: mdl.User) -> bool:
       ),
       app = firebase_app,
     )
-    svc.create_self_report_log(timestamp = int(time.time()*1000), user = user, voluntary = False)
     return True
   except messaging.UnregisteredError:
     user.fcm_token = None
