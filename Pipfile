@@ -12,6 +12,8 @@ gunicorn = "*"
 psycopg2-binary = "*"
 python-dotenv = "*"
 pytz = "*"
+plotly = "*"
+pandas = "*"
 
 [dev-packages]
 yapf = "*"

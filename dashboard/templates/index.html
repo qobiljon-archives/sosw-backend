@@ -4,20 +4,19 @@
     <a class="button" href="{% static 'procedure.png' %}">Stress experiment procedure</a>
     <a class="button" onclick="randomOrder();">PPG accuracy random order</a>
     <a class="button" onclick="copyTime();">Copy current time</a>
+    <a class="button" href="{% url 'dq_plot' %}">Open DQ plots</a>
     <label><input type="text" value="" id="timeInput" hidden></label>
 
     <table>
         <tr>
             <th class="id_column">id</th>
             <th class="name_column">Name</th>
-            <th class="amount_column">EMA #</th>
             <th class="actions_column">Actions</th>
         </tr>
         {% for user in users %}
             <tr>
                 <td class="id_column">{{ user.id }}</td>
-                <td class="name_column">{{ user.name }}</td>
-                <td class="amount_column">{{ user.ema_amount }}</td>
+                <td class="name_column">{{ user.full_name }}</td>
                 <td class="actions_column">
                     {% if user.fcm_token %}
                         <a title="Send EMA" onclick="sendEmaRequest({{ user.id }}, '{{ user.name }}');">
