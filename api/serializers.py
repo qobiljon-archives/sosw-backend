@@ -157,7 +157,7 @@ class CalendarEventSerializer(serializers.ModelSerializer):
   title = serializers.CharField(allow_null = False, max_length = 256)
   start_ts = serializers.IntegerField(allow_null = False)
   end_ts = serializers.IntegerField(allow_null = False)
-  event_location = serializers.CharField(allow_null = True, max_length = 256)
+  event_location = serializers.CharField(allow_blank = True, allow_null = True, max_length = 256)
 
   def create(self, validated_data):
     return svc.create_calendar_event_data(user = self.context['request'].user, **validated_data)

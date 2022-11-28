@@ -14,7 +14,7 @@ urlpatterns = [
   path('submit_call_log', views.InsertCallLog.as_view(), name = 'submitCallLogApi'),
   path('submit_activity_transition', views.InsertActivityTransition.as_view(), name = 'submitActivityTransitionApi'),
   path('submit_screen_state', views.InsertScreenState.as_view(), name = 'submitScreenStateApi'),
-  path('submit_calendar_event', views.InsertScreenState.as_view(), name = 'submitCalendarEventApi'),
+  path('submit_calendar_event', views.InsertCalendarEvent.as_view(), name = 'submitCalendarEventApi'),
 
    # custom views
   path('set_fcm_token', views.SetFcmToken.as_view(), name = 'setFcmTokenApi'),
