@@ -530,7 +530,7 @@ class CalendarEventTest(BaseTestCase):
     self.__view = api.InsertCalendarEvent.as_view()
     super().__init__(*args, **kwargs)
 
-  def test_insert_valid(self):
+  def test_insert_valid1(self):
     req = self.fac.post(
       path = self.__url,
       data = dict(
@@ -539,6 +539,20 @@ class CalendarEventTest(BaseTestCase):
         start_ts = 1231231231,
         end_ts = 1231231312,
         event_location = 'asdasd',
+      ),
+    )
+    res = self.__view(self.force_auth(req))
+    self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+
+  def test_insert_valid2(self):
+    req = self.fac.post(
+      path = self.__url,
+      data = dict(
+        event_id = 'dasd1231',
+        title = 'OFF',
+        start_ts = 1231231231,
+        end_ts = 1231231312,
+        event_location = '',
       ),
     )
     res = self.__view(self.force_auth(req))

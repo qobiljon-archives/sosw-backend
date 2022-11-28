@@ -74,4 +74,4 @@ class CalendarEvent(mdl.Model):
   title = mdl.CharField(max_length = 256)
   start_ts = mdl.BigIntegerField()
   end_ts = mdl.BigIntegerField()
-  event_location = mdl.CharField(max_length = 256)
+  event_location = mdl.CharField(null = True, max_length = 256)
