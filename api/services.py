@@ -65,3 +65,91 @@ def create_off_body_data(
     timestamp = timestamp,
     is_off_body = is_off_body,
   )
+
+
+def create_location_data(
+  user: mdl.User,
+  timestamp: datetime,
+  latitude: float,
+  longitude: float,
+  accuracy: float,
+) -> mdl.OffBody:
+  """ Creates a location data record / object """
+
+  return mdl.Location.objects.create(
+    user = user,
+    timestamp = timestamp,
+    latitude = latitude,
+    longitude = longitude,
+    accuracy = accuracy,
+  )
+
+
+def create_screen_state_data(
+  user: mdl.User,
+  timestamp: datetime,
+  screen_state: str,
+  keyguard_restricted_input_mode: bool,
+) -> mdl.OffBody:
+  """ Creates a screen state data record / object """
+
+  return mdl.ScreenState.objects.create(
+    user = user,
+    timestamp = timestamp,
+    screen_state = screen_state,
+    keyguard_restricted_input_mode = keyguard_restricted_input_mode,
+  )
+
+
+def create_calendar_event_data(
+  user: mdl.User,
+  event_id: str,
+  title: str,
+  start_ts: int,
+  end_ts: int,
+  event_location: str,
+) -> mdl.OffBody:
+  """ Creates a calendar event data record / object """
+
+  return mdl.CalendarEvent.objects.create(
+    user = user,
+    event_id = event_id,
+    title = title,
+    start_ts = start_ts,
+    end_ts = end_ts,
+    event_location = event_location,
+  )
+
+
+def create_call_log_data(
+  user: mdl.User,
+  timestamp: datetime,
+  number: str,
+  duration: str,
+  call_type: str,
+) -> mdl.OffBody:
+  """ Creates a call log data record / object """
+
+  return mdl.CallLog.objects.create(
+    user = user,
+    timestamp = timestamp,
+    number = number,
+    duration = duration,
+    call_type = call_type,
+  )
+
+
+def create_activity_transition_data(
+  user: mdl.User,
+  timestamp: datetime,
+  activity_type: str,
+  transition_type: str,
+) -> mdl.OffBody:
+  """ Creates a activity transition data record / object """
+
+  return mdl.ActivityTransition.objects.create(
+    user = user,
+    timestamp = timestamp,
+    activity_type = activity_type,
+    transition_type = transition_type,
+  )

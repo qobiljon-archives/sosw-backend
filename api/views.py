@@ -150,6 +150,41 @@ class InsertOffBody(generics.CreateAPIView):
   permission_classes = [permissions.IsAuthenticated]
 
 
+class InsertLocation(generics.CreateAPIView):
+  queryset = mdl.Location.objects
+  serializer_class = srz.LocationSerializer
+  authentication_classes = [authentication.TokenAuthentication]
+  permission_classes = [permissions.IsAuthenticated]
+
+
+class InsertCallLog(generics.CreateAPIView):
+  queryset = mdl.CallLog.objects
+  serializer_class = srz.CallLogSerializer
+  authentication_classes = [authentication.TokenAuthentication]
+  permission_classes = [permissions.IsAuthenticated]
+
+
+class InsertActivityTransition(generics.CreateAPIView):
+  queryset = mdl.ActivityTransition.objects
+  serializer_class = srz.ActivityTransitionSerializer
+  authentication_classes = [authentication.TokenAuthentication]
+  permission_classes = [permissions.IsAuthenticated]
+
+
+class InsertScreenState(generics.CreateAPIView):
+  queryset = mdl.ScreenState.objects
+  serializer_class = srz.ScreenStateSerializer
+  authentication_classes = [authentication.TokenAuthentication]
+  permission_classes = [permissions.IsAuthenticated]
+
+
+class InsertCalendarEvent(generics.CreateAPIView):
+  queryset = mdl.CalendarEvent.objects
+  serializer_class = srz.CalendarEventSerializer
+  authentication_classes = [authentication.TokenAuthentication]
+  permission_classes = [permissions.IsAuthenticated]
+
+
 class InsertPPG(generics.CreateAPIView):
 
   class InputSerializer(serializers.Serializer):

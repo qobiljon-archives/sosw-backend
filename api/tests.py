@@ -391,6 +391,174 @@ class OffBodyTest(BaseTestCase):
     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 
 
+class LocationTest(BaseTestCase):
+
+  def __init__(self, *args, **kwargs):
+    self.__url = get_url('submitLocationApi')
+    self.__view = api.InsertLocation.as_view()
+    super().__init__(*args, **kwargs)
+
+  def test_insert_valid(self):
+    req = self.fac.post(
+      path = self.__url,
+      data = dict(
+        timestamp = int((dt.now() - td(seconds = 3600)).timestamp()*1000),
+        latitude = 0.4,
+        longitude = 0.5,
+        accuracy = 0.6,
+      ),
+    )
+    res = self.__view(self.force_auth(req))
+    self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+
+  def test_insert_invalid(self):
+    req = self.fac.post(
+      path = self.__url,
+      data = dict(
+        timestamp = int((dt.now() - td(seconds = 3600)).timestamp()*1000),
+        latitude = 0.4,
+        longitude = 0.5,
+        accuracy = 'a',
+      ),
+    )
+    res = self.__view(self.force_auth(req))
+    self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
+
+class CallLogTest(BaseTestCase):
+
+  def __init__(self, *args, **kwargs):
+    self.__url = get_url('submitCallLogApi')
+    self.__view = api.InsertCallLog.as_view()
+    super().__init__(*args, **kwargs)
+
+  def test_insert_valid(self):
+    req = self.fac.post(
+      path = self.__url,
+      data = dict(
+        timestamp = int((dt.now() - td(seconds = 3600)).timestamp()*1000),
+        number = '01050342705',
+        duration = '2hours',
+        call_type = 'incoming',
+      ),
+    )
+    res = self.__view(self.force_auth(req))
+    self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+
+  def test_insert_invalid(self):
+    req = self.fac.post(
+      path = self.__url,
+      data = dict(
+        timestamp = 'int((dt.now() - td(seconds = 3600)).timestamp()*1000)',
+        number = '01050342705',
+        duration = '2hours',
+        call_type = 'incoming',
+      ),
+    )
+    res = self.__view(self.force_auth(req))
+    self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
+
+class ActivityTransitionTest(BaseTestCase):
+
+  def __init__(self, *args, **kwargs):
+    self.__url = get_url('submitActivityTransitionApi')
+    self.__view = api.InsertActivityTransition.as_view()
+    super().__init__(*args, **kwargs)
+
+  def test_insert_valid(self):
+    req = self.fac.post(
+      path = self.__url,
+      data = dict(
+        timestamp = int((dt.now() - td(seconds = 3600)).timestamp()*1000),
+        activity_type = 'walking',
+        transition_type = 'enter',
+      ),
+    )
+    res = self.__view(self.force_auth(req))
+    self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+
+  def test_insert_invalid(self):
+    req = self.fac.post(
+      path = self.__url,
+      data = dict(
+        timestamp = int((dt.now() - td(seconds = 3600)).timestamp()*1000),
+        activity_type = 'walking',
+        transition_type = '',
+      ),
+    )
+    res = self.__view(self.force_auth(req))
+    self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
+
+class ScreenStateTest(BaseTestCase):
+
+  def __init__(self, *args, **kwargs):
+    self.__url = get_url('submitScreenStateApi')
+    self.__view = api.InsertScreenState.as_view()
+    super().__init__(*args, **kwargs)
+
+  def test_insert_valid(self):
+    req = self.fac.post(
+      path = self.__url,
+      data = dict(
+        timestamp = int((dt.now() - td(seconds = 3600)).timestamp()*1000),
+        screen_state = 'OFF',
+        keyguard_restricted_input_mode = False,
+      ),
+    )
+    res = self.__view(self.force_auth(req))
+    self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+
+  def test_insert_invalid(self):
+    req = self.fac.post(
+      path = self.__url,
+      data = dict(
+        timestamp = int((dt.now() - td(seconds = 3600)).timestamp()*1000),
+        screen_state = 'OFF',
+        keyguard_restricted_input_mode = 'Hola',
+      ),
+    )
+    res = self.__view(self.force_auth(req))
+    self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
+
+class CalendarEventTest(BaseTestCase):
+
+  def __init__(self, *args, **kwargs):
+    self.__url = get_url('submitCalendarEventApi')
+    self.__view = api.InsertCalendarEvent.as_view()
+    super().__init__(*args, **kwargs)
+
+  def test_insert_valid(self):
+    req = self.fac.post(
+      path = self.__url,
+      data = dict(
+        event_id = 'user_123123',
+        title = 'OFF',
+        start_ts = 1231231231,
+        end_ts = 1231231312,
+        event_location = 'asdasd',
+      ),
+    )
+    res = self.__view(self.force_auth(req))
+    self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+
+  def test_insert_invalid(self):
+    req = self.fac.post(
+      path = self.__url,
+      data = dict(
+        event_id = '',
+        title = 'OFF',
+        start_ts = 1231231231,
+        end_ts = 1231231312,
+        event_location = 'asdasd',
+      ),
+    )
+    res = self.__view(self.force_auth(req))
+    self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
+
 class PPGTest(BaseTestCase):
   from api.views import DATA_DUMP_DIR
 

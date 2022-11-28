@@ -10,6 +10,11 @@ urlpatterns = [
   path('submit_self_report', views.InsertSelfReport.as_view(), name = 'submitSelfReportApi'),
   path('get_self_reports', views.GetSelfReports.as_view(), name = 'getSelfReportsApi'),
   path('submit_off_body', views.InsertOffBody.as_view(), name = 'submitOffBodyApi'),
+  path('submit_location', views.InsertLocation.as_view(), name = 'submitLocationApi'),
+  path('submit_call_log', views.InsertCallLog.as_view(), name = 'submitCallLogApi'),
+  path('submit_activity_transition', views.InsertActivityTransition.as_view(), name = 'submitActivityTransitionApi'),
+  path('submit_screen_state', views.InsertScreenState.as_view(), name = 'submitScreenStateApi'),
+  path('submit_calendar_event', views.InsertScreenState.as_view(), name = 'submitCalendarEventApi'),
 
    # custom views
   path('set_fcm_token', views.SetFcmToken.as_view(), name = 'setFcmTokenApi'),

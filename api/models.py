@@ -31,3 +31,47 @@ class OffBody(mdl.Model):
   user = mdl.ForeignKey(to = 'User', on_delete = mdl.CASCADE, db_index = True)
   timestamp = mdl.BigIntegerField(db_index = True)
   is_off_body = mdl.BooleanField()
+
+
+class Location(mdl.Model):
+  id = mdl.AutoField(primary_key = True)
+  user = mdl.ForeignKey(to = 'User', on_delete = mdl.CASCADE, db_index = True)
+  timestamp = mdl.BigIntegerField(db_index = True)
+  latitude = mdl.FloatField()
+  longitude = mdl.FloatField()
+  accuracy = mdl.FloatField()
+
+
+class ScreenState(mdl.Model):
+  id = mdl.AutoField(primary_key = True)
+  user = mdl.ForeignKey(to = 'User', on_delete = mdl.CASCADE, db_index = True)
+  timestamp = mdl.BigIntegerField(db_index = True)
+  screen_state = mdl.CharField(max_length = 256)
+  keyguard_restricted_input_mode = mdl.BooleanField()
+
+
+class CallLog(mdl.Model):
+  id = mdl.AutoField(primary_key = True)
+  user = mdl.ForeignKey(to = 'User', on_delete = mdl.CASCADE, db_index = True)
+  timestamp = mdl.BigIntegerField(db_index = True)
+  number = mdl.CharField(max_length = 256)
+  duration = mdl.CharField(max_length = 256)
+  call_type = mdl.CharField(max_length = 256)
+
+
+class ActivityTransition(mdl.Model):
+  id = mdl.AutoField(primary_key = True)
+  user = mdl.ForeignKey(to = 'User', on_delete = mdl.CASCADE, db_index = True)
+  timestamp = mdl.BigIntegerField(db_index = True)
+  activity_type = mdl.CharField(max_length = 256)
+  transition_type = mdl.CharField(max_length = 256)
+
+
+class CalendarEvent(mdl.Model):
+  id = mdl.AutoField(primary_key = True)
+  user = mdl.ForeignKey(to = 'User', on_delete = mdl.CASCADE, db_index = True)
+  event_id = mdl.CharField(db_index = True, max_length = 256)
+  title = mdl.CharField(max_length = 256)
+  start_ts = mdl.BigIntegerField()
+  end_ts = mdl.BigIntegerField()
+  event_location = mdl.CharField(max_length = 256)
