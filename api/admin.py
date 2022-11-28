@@ -36,3 +36,57 @@ class OffBodyAdmin(admin.ModelAdmin):
     'timestamp',
     'is_off_body',
   ]
+
+
+@admin.register(mdl.Location)
+class LocationAdmin(admin.ModelAdmin):
+  list_display = [
+    'user',
+    'timestamp',
+    'latitude',
+    'longitude',
+    'accuracy',
+  ]
+
+
+@admin.register(mdl.ScreenState)
+class ScreenStateAdmin(admin.ModelAdmin):
+  list_display = [
+    'user',
+    'timestamp',
+    'screen_state',
+    'keyguard_restricted_input_mode',
+  ]
+
+
+@admin.register(mdl.CallLog)
+class CallLogAdmin(admin.ModelAdmin):
+  list_display = [
+    'user',
+    'timestamp',
+    'number',
+    'duration',
+    'call_type',
+  ]
+
+
+@admin.register(mdl.ActivityTransition)
+class ActivityTransitionAdmin(admin.ModelAdmin):
+  list_display = [
+    'user',
+    'timestamp',
+    'activity_type',
+    'transition_type',
+  ]
+
+
+@admin.register(mdl.CalendarEvent)
+class CalendarEventAdmin(admin.ModelAdmin):
+  list_display = [
+    'user',
+    'event_id',
+    'title',
+    'start_ts',
+    'end_ts',
+    'event_location',
+  ]
