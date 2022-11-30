@@ -11,10 +11,15 @@ from api import services as svc
 
 class UserSerializer(serializers.ModelSerializer):
   email = serializers.EmailField(read_only = True)
-  full_name = serializers.CharField(max_length = 64, required = True, allow_blank = False, allow_null = False)
-  gender = serializers.CharField(max_length = 1, required = True, allow_blank = False, allow_null = False)
-  date_of_birth = serializers.DateField(required = True, allow_null = False)
-  fcm_token = serializers.CharField(max_length = 256, required = True, allow_blank = False, allow_null = False)
+  full_name = serializers.CharField(max_length = 64, allow_blank = False, allow_null = False, required = True)
+  gender = serializers.CharField(max_length = 1, allow_blank = False, allow_null = False, required = True)
+  date_of_birth = serializers.DateField(allow_null = False, required = True)
+  fcm_token = serializers.CharField(
+    max_length = 256,
+    allow_blank = False,
+    allow_null = False,
+    required = True,
+  )
 
   class Meta:
     model = mdl.User
@@ -38,9 +43,9 @@ class SelfReportSerializer(serializers.ModelSerializer):
   pss_yourway = serializers.IntegerField(allow_null = False, required = True)
   pss_difficulties = serializers.IntegerField(allow_null = False, required = True)
   stresslvl = serializers.IntegerField(allow_null = False, required = True)
-  social_settings = serializers.CharField(max_length = 16, allow_null = False, required = True)
-  location = serializers.CharField(max_length = 16, allow_null = False, required = True)
-  activity = serializers.CharField(max_length = 32, allow_null = False, required = True)
+  social_settings = serializers.CharField(max_length = 128, allow_null = False, allow_blank = False, required = True)
+  location = serializers.CharField(max_length = 128, allow_null = False, allow_blank = False, required = True)
+  activity = serializers.CharField(max_length = 128, allow_null = False, allow_blank = False, required = True)
 
   def validate(self, attrs):
     before_start = dt(year = 2022, month = 11, day = 14)
@@ -100,7 +105,7 @@ class OffBodySerializer(serializers.ModelSerializer):
   id = serializers.IntegerField(read_only = True)
   user = UserSerializer(read_only = True, allow_null = False)
   timestamp = serializers.IntegerField(allow_null = False, required = True)
-  is_off_body = serializers.BooleanField(allow_null = False)
+  is_off_body = serializers.BooleanField(allow_null = False, required = True)
 
   def validate(self, attrs):
     before_start = dt(year = 2022, month = 11, day = 14)
@@ -123,9 +128,9 @@ class LocationSerializer(serializers.ModelSerializer):
   id = serializers.IntegerField(read_only = True)
   user = UserSerializer(read_only = True, allow_null = False)
   timestamp = serializers.IntegerField(allow_null = False, required = True)
-  latitude = serializers.FloatField(allow_null = False)
-  longitude = serializers.FloatField(allow_null = False)
-  accuracy = serializers.FloatField(allow_null = False)
+  latitude = serializers.FloatField(allow_null = False, required = True)
+  longitude = serializers.FloatField(allow_null = False, required = True)
+  accuracy = serializers.FloatField(allow_null = True, required = True)
 
   def create(self, validated_data):
     return svc.create_location_data(user = self.context['request'].user, **validated_data)
@@ -139,8 +144,8 @@ class ScreenStateSerializer(serializers.ModelSerializer):
   id = serializers.IntegerField(read_only = True)
   user = UserSerializer(read_only = True, allow_null = False)
   timestamp = serializers.IntegerField(allow_null = False, required = True)
-  screen_state = serializers.CharField(allow_null = False, max_length = 256)
-  keyguard_restricted_input_mode = serializers.BooleanField(allow_null = False)
+  screen_state = serializers.CharField(allow_null = False, allow_blank = False, max_length = 256, required = True)
+  keyguard_restricted_input_mode = serializers.BooleanField(allow_null = False, required = True)
 
   def create(self, validated_data):
     return svc.create_screen_state_data(user = self.context['request'].user, **validated_data)
@@ -153,11 +158,16 @@ class ScreenStateSerializer(serializers.ModelSerializer):
 class CalendarEventSerializer(serializers.ModelSerializer):
   id = serializers.IntegerField(read_only = True)
   user = UserSerializer(read_only = True, allow_null = False)
-  event_id = serializers.CharField(allow_null = False, max_length = 256)
-  title = serializers.CharField(allow_null = False, max_length = 256)
-  start_ts = serializers.IntegerField(allow_null = False)
-  end_ts = serializers.IntegerField(allow_null = False)
-  event_location = serializers.CharField(allow_blank = True, allow_null = True, max_length = 256)
+  event_id = serializers.CharField(allow_null = False, allow_blank = False, max_length = 256, required = True)
+  title = serializers.CharField(allow_null = False, allow_blank = False, max_length = 256, required = True)
+  start_ts = serializers.IntegerField(allow_null = False, required = True)
+  end_ts = serializers.IntegerField(allow_null = False, required = True)
+  event_location = serializers.CharField(
+    allow_null = True,
+    allow_blank = True,
+    max_length = 256,
+    required = False,
+  )
 
   def create(self, validated_data):
     return svc.create_calendar_event_data(user = self.context['request'].user, **validated_data)
@@ -171,9 +181,9 @@ class CallLogSerializer(serializers.ModelSerializer):
   id = serializers.IntegerField(read_only = True)
   user = UserSerializer(read_only = True, allow_null = False)
   timestamp = serializers.IntegerField(allow_null = False, required = True)
-  number = serializers.CharField(allow_null = False, max_length = 256)
-  duration = serializers.CharField(allow_null = False, max_length = 256)
-  call_type = serializers.CharField(allow_null = False, max_length = 256)
+  number = serializers.CharField(allow_null = False, allow_blank = False, max_length = 256, required = True)
+  duration = serializers.CharField(allow_null = False, allow_blank = False, max_length = 256, required = True)
+  call_type = serializers.CharField(allow_null = False, allow_blank = False, max_length = 256, required = True)
 
   def create(self, validated_data):
     return svc.create_call_log_data(user = self.context['request'].user, **validated_data)
@@ -187,12 +197,27 @@ class ActivityTransitionSerializer(serializers.ModelSerializer):
   id = serializers.IntegerField(read_only = True)
   user = UserSerializer(read_only = True, allow_null = False)
   timestamp = serializers.IntegerField(allow_null = False, required = True)
-  activity_type = serializers.CharField(allow_null = False, max_length = 256)
-  transition_type = serializers.CharField(allow_null = False, max_length = 256)
+  activity = serializers.CharField(allow_null = False, allow_blank = False, max_length = 256, required = True)
+  transition = serializers.CharField(allow_null = False, allow_blank = False, max_length = 256, required = True)
 
   def create(self, validated_data):
     return svc.create_activity_transition_data(user = self.context['request'].user, **validated_data)
 
   class Meta:
     model = mdl.SelfReport
-    fields = ['id', 'user', 'timestamp', 'activity_type', 'transition_type']
+    fields = ['id', 'user', 'timestamp', 'activity', 'transition']
+
+
+class ActivityRecognitionSerializer(serializers.ModelSerializer):
+  id = serializers.IntegerField(read_only = True)
+  user = UserSerializer(read_only = True, allow_null = False)
+  timestamp = serializers.IntegerField(allow_null = False, required = True)
+  activity = serializers.CharField(allow_null = False, allow_blank = False, max_length = 256, required = True)
+  confidence = serializers.IntegerField(allow_null = False, required = True)
+
+  def create(self, validated_data):
+    return svc.create_activity_recognition_data(user = self.context['request'].user, **validated_data)
+
+  class Meta:
+    model = mdl.SelfReport
+    fields = ['id', 'user', 'timestamp', 'activity', 'confidence']

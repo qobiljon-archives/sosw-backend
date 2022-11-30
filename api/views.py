@@ -171,6 +171,13 @@ class InsertActivityTransition(generics.CreateAPIView):
   permission_classes = [permissions.IsAuthenticated]
 
 
+class InsertActivityRecognition(generics.CreateAPIView):
+  queryset = mdl.ActivityRecognition.objects
+  serializer_class = srz.ActivityRecognitionSerializer
+  authentication_classes = [authentication.TokenAuthentication]
+  permission_classes = [permissions.IsAuthenticated]
+
+
 class InsertScreenState(generics.CreateAPIView):
   queryset = mdl.ScreenState.objects
   serializer_class = srz.ScreenStateSerializer

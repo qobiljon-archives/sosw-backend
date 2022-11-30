@@ -13,6 +13,7 @@ urlpatterns = [
   path('submit_location', views.InsertLocation.as_view(), name = 'submitLocationApi'),
   path('submit_call_log', views.InsertCallLog.as_view(), name = 'submitCallLogApi'),
   path('submit_activity_transition', views.InsertActivityTransition.as_view(), name = 'submitActivityTransitionApi'),
+  path('submit_activity_recognition', views.InsertActivityRecognition.as_view(), name = 'submitActivityRecognitionApi'),
   path('submit_screen_state', views.InsertScreenState.as_view(), name = 'submitScreenStateApi'),
   path('submit_calendar_event', views.InsertCalendarEvent.as_view(), name = 'submitCalendarEventApi'),
 

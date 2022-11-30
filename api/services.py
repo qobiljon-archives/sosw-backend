@@ -73,7 +73,7 @@ def create_location_data(
   latitude: float,
   longitude: float,
   accuracy: float,
-) -> mdl.OffBody:
+) -> mdl.Location:
   """ Creates a location data record / object """
 
   return mdl.Location.objects.create(
@@ -90,7 +90,7 @@ def create_screen_state_data(
   timestamp: datetime,
   screen_state: str,
   keyguard_restricted_input_mode: bool,
-) -> mdl.OffBody:
+) -> mdl.ScreenState:
   """ Creates a screen state data record / object """
 
   return mdl.ScreenState.objects.create(
@@ -108,7 +108,7 @@ def create_calendar_event_data(
   start_ts: int,
   end_ts: int,
   event_location: str,
-) -> mdl.OffBody:
+) -> mdl.CalendarEvent:
   """ Creates a calendar event data record / object """
 
   return mdl.CalendarEvent.objects.create(
@@ -127,7 +127,7 @@ def create_call_log_data(
   number: str,
   duration: str,
   call_type: str,
-) -> mdl.OffBody:
+) -> mdl.CallLog:
   """ Creates a call log data record / object """
 
   return mdl.CallLog.objects.create(
@@ -142,14 +142,30 @@ def create_call_log_data(
 def create_activity_transition_data(
   user: mdl.User,
   timestamp: datetime,
-  activity_type: str,
-  transition_type: str,
-) -> mdl.OffBody:
+  activity: str,
+  transition: str,
+) -> mdl.ActivityTransition:
   """ Creates a activity transition data record / object """
 
   return mdl.ActivityTransition.objects.create(
     user = user,
     timestamp = timestamp,
-    activity_type = activity_type,
-    transition_type = transition_type,
+    activity = activity,
+    transition = transition,
+  )
+
+
+def create_activity_recognition_data(
+  user: mdl.User,
+  timestamp: datetime,
+  activity: str,
+  confidence: int,
+) -> mdl.ActivityRecognition:
+  """ Creates a activity transition data record / object """
+
+  return mdl.ActivityRecognition.objects.create(
+    user = user,
+    timestamp = timestamp,
+    activity = activity,
+    confidence = confidence,
   )

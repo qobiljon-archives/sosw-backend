@@ -75,8 +75,18 @@ class ActivityTransitionAdmin(admin.ModelAdmin):
   list_display = [
     'user',
     'timestamp',
-    'activity_type',
-    'transition_type',
+    'activity',
+    'transition',
+  ]
+
+
+@admin.register(mdl.ActivityRecognition)
+class ActivityRecognitionAdmin(admin.ModelAdmin):
+  list_display = [
+    'user',
+    'timestamp',
+    'activity',
+    'confidence',
   ]
 
 

@@ -471,8 +471,8 @@ class ActivityTransitionTest(BaseTestCase):
       path = self.__url,
       data = dict(
         timestamp = int((dt.now() - td(seconds = 3600)).timestamp()*1000),
-        activity_type = 'walking',
-        transition_type = 'enter',
+        activity = 'walking',
+        transition = 'enter',
       ),
     )
     res = self.__view(self.force_auth(req))
@@ -483,8 +483,40 @@ class ActivityTransitionTest(BaseTestCase):
       path = self.__url,
       data = dict(
         timestamp = int((dt.now() - td(seconds = 3600)).timestamp()*1000),
-        activity_type = 'walking',
-        transition_type = '',
+        activity = 'walking',
+        transition = '',
+      ),
+    )
+    res = self.__view(self.force_auth(req))
+    self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
+
+class ActivityRecognitionTest(BaseTestCase):
+
+  def __init__(self, *args, **kwargs):
+    self.__url = get_url('submitActivityRecognitionApi')
+    self.__view = api.InsertActivityRecognition.as_view()
+    super().__init__(*args, **kwargs)
+
+  def test_insert_valid(self):
+    req = self.fac.post(
+      path = self.__url,
+      data = dict(
+        timestamp = int((dt.now() - td(seconds = 3600)).timestamp()*1000),
+        activity = 'walking',
+        confidence = 90,
+      ),
+    )
+    res = self.__view(self.force_auth(req))
+    self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+
+  def test_insert_invalid(self):
+    req = self.fac.post(
+      path = self.__url,
+      data = dict(
+        timestamp = int((dt.now() - td(seconds = 3600)).timestamp()*1000),
+        activity = '',
+        confidence = 90,
       ),
     )
     res = self.__view(self.force_auth(req))

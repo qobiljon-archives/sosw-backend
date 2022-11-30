@@ -63,8 +63,16 @@ class ActivityTransition(mdl.Model):
   id = mdl.AutoField(primary_key = True)
   user = mdl.ForeignKey(to = 'User', on_delete = mdl.CASCADE, db_index = True)
   timestamp = mdl.BigIntegerField(db_index = True)
-  activity_type = mdl.CharField(max_length = 256)
-  transition_type = mdl.CharField(max_length = 256)
+  activity = mdl.CharField(max_length = 256)
+  transition = mdl.CharField(max_length = 256)
+
+
+class ActivityRecognition(mdl.Model):
+  id = mdl.AutoField(primary_key = True)
+  user = mdl.ForeignKey(to = 'User', on_delete = mdl.CASCADE, db_index = True)
+  timestamp = mdl.BigIntegerField(db_index = True)
+  activity = mdl.CharField(max_length = 256)
+  confidence = mdl.IntegerField()
 
 
 class CalendarEvent(mdl.Model):
