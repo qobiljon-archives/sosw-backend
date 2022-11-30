@@ -19,10 +19,15 @@
                 <td class="name_column">{{ user.full_name }}</td>
                 <td class="actions_column">
                     {% if user.fcm_token %}
-                        <a title="Send EMA" onclick="sendEmaRequest({{ user.id }}, '{{ user.name }}');">
+                        <a title="Send EMA" onclick="sendEmaRequest({{ user.id }}, '{{ user.name }}');" style="margin-right: 10px">
                             <img class="action_button_green" src="{% static 'send.png' %}" alt="send">
                         </a>
-                    {% else %}N/A{% endif %}
+                    {% else %}
+                        <a title="N/A" style="margin-right: 10px">N/A</a>
+                    {% endif %}
+                    <a title="See DQ" href="{% url 'dq_plot' %}?pid={{ user.id }}">
+                        <img class="action_button_green" src="{% static 'barchart.png' %}" alt="Data quality">
+                    </a>
                 </td>
             </tr>
         {% endfor %}

@@ -186,3 +186,4 @@ cython_debug/
 # formatting
 .style.yapf
 sosw-data/
+sosw_data/
