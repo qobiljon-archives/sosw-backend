@@ -361,36 +361,6 @@ class SelfReportTest(BaseTestCase):
     self.assertEqual(res.status_code, status.HTTP_200_OK)
 
 
-class OffBodyTest(BaseTestCase):
-
-  def __init__(self, *args, **kwargs):
-    self.__url = get_url('submitOffBodyApi')
-    self.__view = api.InsertOffBody.as_view()
-    super().__init__(*args, **kwargs)
-
-  def test_insert_valid(self):
-    req = self.fac.post(
-      path = self.__url,
-      data = dict(
-        timestamp = int((dt.now() - td(seconds = 3600)).timestamp()*1000),
-        is_off_body = False,
-      ),
-    )
-    res = self.__view(self.force_auth(req))
-    self.assertEqual(res.status_code, status.HTTP_201_CREATED)
-
-  def test_insert_timestamp(self):
-    req = self.fac.post(
-      path = self.__url,
-      data = dict(
-        timestamp = int((dt.now() + td(seconds = 3600)).timestamp()*1000),
-        is_off_body = False,
-      ),
-    )
-    res = self.__view(self.force_auth(req))
-    self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-
-
 class LocationTest(BaseTestCase):
 
   def __init__(self, *args, **kwargs):
@@ -772,3 +742,67 @@ class AccTest(BaseTestCase):
     )
     res = self.__view(self.force_auth(request = req))
     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
+
+class OffBodyTest(BaseTestCase):
+  from api.views import DATA_DUMP_DIR
+
+  def __init__(self, *args, **kwargs):
+    self.__url = get_url('submitOffBodyApi')
+    self.__view = api.InsertOffBody.as_view()
+    super().__init__(*args, **kwargs)
+
+  def __validate_files(self, test_files):
+    dirpath = join(self.DATA_DUMP_DIR, self.email)
+    self.assertTrue(exists(dirpath))
+
+    files = set(listdir(path = dirpath))
+    confirmations = list()
+    for testName, testContent in test_files.items():
+      self.assertIn(testName, files)
+      filepath = join(dirpath, testName)
+      if exists(filepath):
+        with open(filepath, 'rb') as rb:
+          confirmations.append(rb.read() == testContent)
+        remove(filepath)
+      else:
+        confirmations.append(False)
+    self.assertTrue(all(confirmations))
+
+  def test_insert_valid(self):
+    test_files = {
+      '122_offBody.csv': b'1,2,3,4,5,6',
+      '1221_offbody.csv': b'7,8,9,10,11',
+      '31312_offBody.csv': b'12,13,14,15',
+    }
+
+    for name, content in test_files.items():
+      req = self.fac.post(
+        path = self.__url,
+        data = dict(file = SimpleUploadedFile(name = name, content = content)),
+      )
+      res = self.__view(self.force_auth(request = req))
+      self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+    dirpath = join(self.DATA_DUMP_DIR, self.email)
+    self.assertTrue(exists(dirpath))
+    expected = b''.join(x for x in test_files.values())
+    filepath = join(dirpath, 'offbody.csv')
+    self.assertTrue(exists(filepath))
+    with open(filepath, 'rb') as rb:
+      self.assertEqual(expected, rb.read())
+    shutil.rmtree(dirpath)
+
+  def test_insert_invalid(self):
+    test_files = {
+      '122_ppg.csv': b'1,2,3,4,5,6',
+      '1221_acc.csv': b'7,8,9,10,11',
+    }
+
+    for name, content in test_files.items():
+      req = self.fac.post(
+        path = self.__url,
+        data = dict(file = SimpleUploadedFile(name = name, content = content)),
+      )
+      res = self.__view(self.force_auth(request = req))
+      self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)

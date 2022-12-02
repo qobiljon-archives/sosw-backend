@@ -143,13 +143,6 @@ class GetSelfReports(generics.ListAPIView):
     return slc.get_self_reports(user = self.request.user)
 
 
-class InsertOffBody(generics.CreateAPIView):
-  queryset = mdl.OffBody.objects
-  serializer_class = srz.OffBodySerializer
-  authentication_classes = [authentication.TokenAuthentication]
-  permission_classes = [permissions.IsAuthenticated]
-
-
 class InsertLocation(generics.CreateAPIView):
   queryset = mdl.Location.objects
   serializer_class = srz.LocationSerializer
@@ -199,8 +192,8 @@ class InsertPPG(generics.CreateAPIView):
 
     def validate(self, attrs):
       filename_lower = attrs['file'].name.lower()
-      if 'ppg' not in filename_lower or 'acc' in filename_lower:
-        raise ValidationError(f'Filename must contain "ppg" and NOT contain "acc"')
+      if 'ppg' not in filename_lower or 'acc' in filename_lower or 'offbody' in filename_lower:
+        raise ValidationError(f'Filename must contain "ppg" and NOT contain "acc" and "offbody"')
 
       return attrs
 
@@ -236,8 +229,8 @@ class InsertAcc(generics.CreateAPIView):
 
     def validate(self, attrs):
       filename_lower = attrs['file'].name.lower()
-      if 'acc' not in filename_lower or 'ppg' in filename_lower:
-        raise ValidationError(f'Filename must contain "acc" and NOT contain "ppg')
+      if 'acc' not in filename_lower or 'ppg' in filename_lower or 'offbody' in filename_lower:
+        raise ValidationError(f'Filename must contain "acc" and NOT contain "ppg" and "offbody"')
 
       return attrs
 
@@ -261,6 +254,43 @@ class InsertAcc(generics.CreateAPIView):
     # save the files
     file = serializer.validated_data['file']
     with open(join(dirpath, 'acc.csv'), 'ab+') as wb:
+      wb.write(file.read())
+
+    return response.Response(status = status.HTTP_200_OK)
+
+
+class InsertOffBody(generics.CreateAPIView):
+
+  class InputSerializer(serializers.Serializer):
+    file = serializers.FileField(required = True, allow_empty_file = False)
+
+    def validate(self, attrs):
+      filename_lower = attrs['file'].name.lower()
+      if 'offbody' not in filename_lower or 'ppg' in filename_lower or 'acc' in filename_lower:
+        raise ValidationError(f'Filename must contain "offbody" and NOT contain "ppg" and "acc"')
+
+      return attrs
+
+    class Meta:
+      fields = '__all__'
+
+  serializer_class = InputSerializer
+  authentication_classes = [authentication.TokenAuthentication]
+  permission_classes = [permissions.IsAuthenticated]
+
+  def post(self, request, *args, **kwargs):
+    serializer = InsertOffBody.InputSerializer(data = request.data)
+
+    if not serializer.is_valid():
+      return response.Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
+
+    # prepare user's directory
+    dirpath = join(DATA_DUMP_DIR, request.user.email)
+    if not exists(dirpath): mkdir(dirpath)
+
+    # save the files
+    file = serializer.validated_data['file']
+    with open(join(dirpath, 'offbody.csv'), 'ab+') as wb:
       wb.write(file.read())
 
     return response.Response(status = status.HTTP_200_OK)
