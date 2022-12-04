@@ -38,7 +38,7 @@ class SignUp(generics.CreateAPIView):
     password = serializers.CharField(required = True, allow_null = False, min_length = 8)
 
     def validate(self, attrs):
-      if slc.user_exists(email = attrs['email']):
+      if slc.get_user(email = attrs['email']):
         raise ValidationError('Email already registered')
 
       if attrs['gender'] not in ['f', 'F', 'm', 'M']:
