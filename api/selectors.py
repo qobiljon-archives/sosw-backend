@@ -111,6 +111,6 @@ def get_calendar_events(user: mdl.User, from_ts: int, till_ts: int) -> List[mdl.
 
   return mdl.CalendarEvent.objects.filter(
     user = user,
-    timestamp__gte = from_ts,
-    timestamp__lte = till_ts,
-  ).order_by('timestamp')
+    start_ts__gte = from_ts,
+    end_ts__lte = till_ts,
+  ).order_by('start_ts')
