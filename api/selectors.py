@@ -46,71 +46,104 @@ def get_self_reports(
   ).order_by('timestamp')
 
 
-def get_off_bodys(user: mdl.User, from_ts: int, till_ts: int) -> List[mdl.OffBody]:
+def get_first_timestamp(user: mdl.User) -> int:
+  ans = float('inf')
+
+  if mdl.SelfReport.objects.exists():
+    ans = min(ans, mdl.SelfReport.objects.first().timestamp)
+  if mdl.Location.objects.exists():
+    ans = min(ans, mdl.Location.objects.first().timestamp)
+  if mdl.ScreenState.objects.exists():
+    ans = min(ans, mdl.ScreenState.objects.first().timestamp)
+  if mdl.ActivityTransition.objects.exists():
+    ans = min(ans, mdl.ActivityTransition.objects.first().timestamp)
+  if mdl.ActivityRecognition.objects.exists():
+    ans = min(ans, mdl.ActivityRecognition.objects.first().timestamp)
+
+  return ans
+
+
+def get_ema_count(
+  user: mdl.User,
+  from_ts: Optional[int] = None,
+  till_ts: Optional[int] = None,
+) -> List[mdl.SelfReport]:
+  """ Returns list of user's self-reports """
+
+  if from_ts is None or till_ts is None:
+    return mdl.SelfReport.objects.filter(user = user)
+  return mdl.SelfReport.objects.filter(
+    user = user,
+    timestamp__gte = from_ts,
+    timestamp__lte = till_ts,
+  ).count()
+
+
+def get_offbody_count(user: mdl.User, from_ts: int, till_ts: int) -> List[mdl.OffBody]:
   """ Returns list of off-body data """
 
   return mdl.OffBody.objects.filter(
     user = user,
     timestamp__gte = from_ts,
     timestamp__lte = till_ts,
-  ).order_by('timestamp')
+  ).count()
 
 
-def get_locations(user: mdl.User, from_ts: int, till_ts: int) -> List[mdl.Location]:
+def get_location_count(user: mdl.User, from_ts: int, till_ts: int) -> List[mdl.Location]:
   """ Returns list of locations data """
 
   return mdl.Location.objects.filter(
     user = user,
     timestamp__gte = from_ts,
     timestamp__lte = till_ts,
-  ).order_by('timestamp')
+  ).count()
 
 
-def get_screen_states(user: mdl.User, from_ts: int, till_ts: int) -> List[mdl.ScreenState]:
+def get_screenstate_count(user: mdl.User, from_ts: int, till_ts: int) -> List[mdl.ScreenState]:
   """ Returns list of screen states data """
 
   return mdl.ScreenState.objects.filter(
     user = user,
     timestamp__gte = from_ts,
     timestamp__lte = till_ts,
-  ).order_by('timestamp')
+  ).count()
 
 
-def get_call_logs(user: mdl.User, from_ts: int, till_ts: int) -> List[mdl.CallLog]:
+def get_calllog_count(user: mdl.User, from_ts: int, till_ts: int) -> List[mdl.CallLog]:
   """ Returns list of call logs data """
 
   return mdl.CallLog.objects.filter(
     user = user,
     timestamp__gte = from_ts,
     timestamp__lte = till_ts,
-  ).order_by('timestamp')
+  ).count()
 
 
-def get_activity_transitions(user: mdl.User, from_ts: int, till_ts: int) -> List[mdl.ActivityTransition]:
+def get_activitytransition_count(user: mdl.User, from_ts: int, till_ts: int) -> List[mdl.ActivityTransition]:
   """ Returns list of activity transitions data """
 
   return mdl.ActivityTransition.objects.filter(
     user = user,
     timestamp__gte = from_ts,
     timestamp__lte = till_ts,
-  ).order_by('timestamp')
+  ).count()
 
 
-def get_activity_recognitions(user: mdl.User, from_ts: int, till_ts: int) -> List[mdl.ActivityRecognition]:
+def get_activityrecognitions_count(user: mdl.User, from_ts: int, till_ts: int) -> List[mdl.ActivityRecognition]:
   """ Returns list of activity transitions data """
 
   return mdl.ActivityRecognition.objects.filter(
     user = user,
     timestamp__gte = from_ts,
     timestamp__lte = till_ts,
-  ).order_by('timestamp')
+  ).count()
 
 
-def get_calendar_events(user: mdl.User, from_ts: int, till_ts: int) -> List[mdl.CalendarEvent]:
+def get_calendarevent_count(user: mdl.User, from_ts: int, till_ts: int) -> List[mdl.CalendarEvent]:
   """ Returns list of activity transitions data """
 
   return mdl.CalendarEvent.objects.filter(
     user = user,
     start_ts__gte = from_ts,
     end_ts__lte = till_ts,
-  ).order_by('start_ts')
+  ).count()

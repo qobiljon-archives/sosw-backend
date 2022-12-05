@@ -1,4 +1,4 @@
-def count_file_lines(path: str) -> int:
+def get_file_lines(path: str) -> int:
 
   def blocks(files, size = 65536):
     while True:
