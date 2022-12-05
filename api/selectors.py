@@ -1,5 +1,7 @@
 from typing import Optional, List
 from api import models as mdl
+from datetime import datetime as dt
+from dateutil import tz
 
 
 def user_exists(id: int = None, email: str = None) -> bool:
@@ -60,7 +62,7 @@ def get_first_timestamp(user: mdl.User) -> int:
   if mdl.ActivityRecognition.objects.exists():
     ans = min(ans, mdl.ActivityRecognition.objects.first().timestamp)
 
-  return ans
+  return ans if ans != float('inf') else dt.now(tz = tz.gettz('Asia/Seoul'))
 
 
 def get_ema_count(

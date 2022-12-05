@@ -52,8 +52,10 @@ def handle_dq_plot(request):
     activityrecognition_counts = list()
     calendarevent_counts = list()
 
+    # compute amount of samples
     for d in timestamps:
       from_ts, till_ts = int(d.timestamp()*1000), int((d + delta).timestamp()*1000)
+
       ema_counts.append(slc.get_ema_count(user, from_ts, till_ts))
       location_counts.append(slc.get_location_count(user, from_ts, till_ts))
       screenstate_counts.append(slc.get_screenstate_count(user, from_ts, till_ts))
@@ -67,8 +69,16 @@ def handle_dq_plot(request):
     fig.add_trace(go.Bar(x = timestamps, y = location_counts, name = 'Location'), row = 2, col = 1)
     fig.add_trace(go.Bar(x = timestamps, y = screenstate_counts, name = 'ScreenState'), row = 3, col = 1)
     fig.add_trace(go.Bar(x = timestamps, y = callog_counts, name = 'CallLog'), row = 4, col = 1)
-    fig.add_trace(go.Bar(x = timestamps, y = activitytransition_counts, name = 'Activity#1'), row = 5, col = 1)
-    fig.add_trace(go.Bar(x = timestamps, y = activityrecognition_counts, name = 'Activity#2'), row = 6, col = 1)
+    fig.add_trace(
+      go.Bar(x = timestamps, y = activitytransition_counts, name = 'Activity Transitions'),
+      row = 5,
+      col = 1,
+    )
+    fig.add_trace(
+      go.Bar(x = timestamps, y = activityrecognition_counts, name = 'Activity Recognitions'),
+      row = 6,
+      col = 1,
+    )
     fig.add_trace(go.Bar(x = timestamps, y = calendarevent_counts, name = 'CalendarEvent'), row = 7, col = 1)
 
   def add_smartwatch_dq_plots(fig, ppg_timestamps, acc_timestamps, offbody_timestamps, timestamps, delta):
@@ -118,7 +128,6 @@ def handle_dq_plot(request):
       vertical_spacing = 0.02,
       subplot_titles = [
         'EMA count',
-        'OffBody count',
         'Location count',
         'Screen state count',
         'Call count',
@@ -158,13 +167,25 @@ def handle_dq_plot(request):
 
     # make common timestamps for subplots for a selected day
     tz_korea = tz.gettz('Asia/Seoul')
-    till_dt = dt.now(tz = tz_korea) + td(days = 1)
-    till_dt.replace(hour = 0, minute = 0, second = 0, microsecond = 0)
+    till_dt = (dt.now(tz = tz_korea) + td(days = 1)).replace(hour = 0, minute = 0, second = 0, microsecond = 0)
     timestamps = list()
-    d = dt.fromtimestamp(int(from_ts/1000), tz = tz_korea)
+    d = dt.fromtimestamp(int(from_ts/1000), tz = tz_korea).replace(hour = 0, minute = 0, second = 0, microsecond = 0)
+    night_periods = list()
+    night_start, night_end = None, None
     while d < till_dt:
       timestamps.append(d)
+
+      if d.hour == 21:
+        night_start = d
+      if d.hour == 9:
+        night_end = d
+        if night_start is None: night_periods.append([timestamps[0], night_end])
+        else: night_periods.append([night_start, night_end])
+        night_start = None
+        night_end = None
+
       d += td(hours = 1)
+    if night_start is not None: night_periods.append([night_start, timestamps[-1]])
 
     add_smartphone_dq_plots(fig, user, timestamps, td(hours = 1))
     add_smartwatch_dq_plots(fig, ppg_timestamps, acc_timestamps, offbody_timestamps, timestamps, td(hours = 1))
@@ -172,6 +193,22 @@ def handle_dq_plot(request):
     fig.update_layout(height = 1000, showlegend = False)
     for annotation in fig['layout']['annotations']:
       annotation['textangle'] = 0
+
+    fig.update_layout(shapes = [
+      dict(
+        type = "rect",
+        xref = "x",
+        yref = "y",
+        x0 = s,
+        y0 = 0,
+        x1 = e,
+        y1 = 2,
+        fillcolor = "lightgray",
+        opacity = 0.6,
+        line_width = 0,
+        layer = "below",
+      ) for s, e in night_periods
+    ])
 
     fig.update_layout(margin = dict(l = 10, r = 10, t = 10, b = 10))
     plots.append(plotly.offline.plot(
