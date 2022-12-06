@@ -23,8 +23,10 @@
     </div>
     <ul class="nav navbar-nav">
       <li><a href="/admin/">Admin</a></li>
-      <li><a href="https://miro.com/app/board/uXjVP8-xxq0=/?share_link_id=923804434540">Lab stress</a></li>
-      <li><a href="#" onclick="randomOrder()">Treadmill</a></li>
+      <li><a href="https://miro.com/app/board/uXjVP8-xxq0=/?share_link_id=923804434540">Lab Stress procedure</a></li>
+      <li><a href="#" onclick="randomOrder()">Treadmill Random Order</a></li>
+      <li><a href="https://docs.google.com/spreadsheets/d/1yGXMgwCByIuGQ-wjau4UamvZSVyCQQMtfKJGNiAee5s/edit?usp=sharing">Experiment Timing</a></li>
+      <li><a href="#" onclick="copyTime()">Get Timestamp</a></li>
       <li><a href="/api-auth/logout/">Logout</a></li>
     </ul>
   </div>
@@ -35,5 +37,48 @@
     {% block content %}
     {% endblock %}
 </div>
+<script>
+  function fallbackCopyTextToClipboard(text) {
+      const textArea = document.createElement("textarea");
+      textArea.value = text;
+
+      // Avoid scrolling to bottom
+      textArea.style.top = "0";
+      textArea.style.left = "0";
+      textArea.style.position = "fixed";
+
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+
+      try {
+          const successful = document.execCommand('copy');
+          const msg = successful ? 'successful' : 'unsuccessful';
+          console.log('Fallback: Copying text command was ' + msg);
+      } catch (err) {
+          console.error('Fallback: Oops, unable to copy', err);
+      }
+
+      document.body.removeChild(textArea);
+  }
+
+  function copyTextToClipboard(text) {
+      if (!navigator.clipboard) {
+          fallbackCopyTextToClipboard(text);
+          return;
+      }
+      navigator.clipboard.writeText(text).then(function () {
+          console.log('Async: Copying to clipboard was successful!');
+      }, function (err) {
+          console.error('Async: Could not copy text: ', err);
+      });
+  }
+
+  function copyTime() {
+      let dt = new Date();
+      copyTextToClipboard(dt.getTime().toString())
+      alert(`${dt.getTime().toString()} = now (${dt.toTimeString()})`);
+  }
+</script>
 </body>
 </html>
