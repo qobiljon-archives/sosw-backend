@@ -44,6 +44,10 @@ def get_daily_notification_timings() -> List[datetime]:
 
 
 def send_push_notification(user: mdl.User) -> bool:
+  if user.fcm_token is None:
+    print(user.full_name, 'empty fcm_token')
+    return
+
   try:
     messaging.send(
       message = messaging.Message(
