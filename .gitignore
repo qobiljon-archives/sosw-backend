@@ -187,3 +187,4 @@ cython_debug/
 .style.yapf
 sosw-data/
 sosw_data/
+sosw_data.tar.gz
