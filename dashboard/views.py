@@ -148,19 +148,31 @@ def handle_dq_plot(request):
     # read smartwatch data files
     if exists(ppg_path):
       with open(ppg_path, 'r') as r:
-        ppg_timestamps = sorted(map(lambda x: int(x[:x.index(',')]), r.readlines()))
+        ppg_timestamps = list()
+        for l in r:
+          ts = l[:l.index(',')]
+          if ts.isdigit(): ppg_timestamps.append(int(ts))
+        ppg_timestamps.sort()
         if ppg_timestamps: from_ts = min(from_ts, ppg_timestamps[0])
     else:
       ppg_timestamps = list()
     if exists(acc_path):
       with open(acc_path, 'r') as r:
-        acc_timestamps = sorted(map(lambda x: int(x[:x.index(',')]), r.readlines()))
+        acc_timestamps = list()
+        for l in r:
+          ts = l[:l.index(',')]
+          if ts.isdigit(): acc_timestamps.append(int(ts))
+        acc_timestamps.sort()
         if acc_timestamps: from_ts = min(from_ts, acc_timestamps[0])
     else:
       acc_timestamps = list()
     if exists(offbody_path):
       with open(offbody_path, 'r') as r:
-        offbody_timestamps = sorted(map(lambda x: int(x[:x.index(',')]), r.readlines()))
+        offbody_timestamps = list()
+        for l in r:
+          ts = l[:l.index(',')]
+          if ts.isdigit(): offbody_timestamps.append(int(ts))
+        offbody_timestamps.sort()
         if offbody_timestamps: from_ts = min(from_ts, offbody_timestamps[0])
     else:
       offbody_timestamps = list()
